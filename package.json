@@ -1,0 +1,18 @@
+{
+  "name": "writing-application-mvc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./out/electron/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "@types/node": "^14.14.16",
+    "electron": "^11.1.1",
+    "typescript": "^4.1.3"
+  }
+}
