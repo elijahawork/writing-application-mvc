@@ -12,6 +12,7 @@ export class MenuView extends CustomElement<'li'> {
         super('li');
 
         this.htmlElement.appendChild(this.labelElement);
+        this.htmlElement.appendChild(this.listElement);
 
         this.label = label ?? '';
 
@@ -64,6 +65,8 @@ export class MenuView extends CustomElement<'li'> {
     }
 
     private removeAllHTMLChildren() {
-        this.listElement.childNodes.forEach(child => child.remove());
+        this.listElement.childNodes.forEach(child => {
+            child.remove();
+        });
     }
 }
