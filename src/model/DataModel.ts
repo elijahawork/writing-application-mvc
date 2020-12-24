@@ -14,10 +14,6 @@ const META_DATA_DELIMITER = ';';
 
 const dataModelInstances: Map<number, DataModel> = new Map<number, DataModel>();
 
-/**
- * !!! Change in data model system. There will only be one data model and that will always be able to be a folder type
- */
-
 export class DataModel {
     parent: DataModel | null = null;
     private children: DataModel[] = [];
@@ -28,7 +24,7 @@ export class DataModel {
     private metadata: MetaDataObject;
 
     constructor(id: number, position: number, label: string) {
-        this.metadata = { id, position, path: [], label };
+        this.metadata = { id, position, path: [-1], label };
         this.memoizeDistinctDataModelInstance();
         this.createFileIfNonexistant();
     }
@@ -68,6 +64,27 @@ export class DataModel {
         this.save();
     }
     
+    public push(dataModel: DataModel) {
+        this.children.push(dataModel);
+        dataModel.path = [...this.path, this.id];
+        this.updateChildrenPositions();
+    }
+    public remove(dataModel: DataModel) {
+        const indexOfDataModel = this.children.indexOf(dataModel);
+        this.children.splice(indexOfDataModel, 1);
+        dataModel.deletePath();
+        this.updateChildrenPositions();
+    }
+    public insert(dataModel: DataModel, index: number) {
+        this.children.splice(index, 0, dataModel);
+        this.updateChildrenPositions();
+    }
+    private updateChildrenPositions() {
+        this.children.forEach((child, index) => {
+            child.position = index;
+        });
+    }
+
     public save() {
         const currentMetaDataAndTextContent = this.combineCurrentMetaDataStateAndContent();
         this.writeMetaDataAndContentToFile(currentMetaDataAndTextContent);
