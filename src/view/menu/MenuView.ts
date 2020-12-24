@@ -6,7 +6,6 @@ export class MenuView extends CustomElement<'li'> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');
     private readonly listElement: HTMLUListElement = document.createElement('ul');
 
-    public parent: MenuView | null = null;
     private children: MenuView[] = [];
 
     constructor(label?: string) {
@@ -15,6 +14,8 @@ export class MenuView extends CustomElement<'li'> {
         this.htmlElement.appendChild(this.labelElement);
 
         this.label = label ?? '';
+
+        menuViewInstances.push(this);
     }
     
     public set label(label: string) {
@@ -25,24 +26,44 @@ export class MenuView extends CustomElement<'li'> {
     }
 
     public push(menuView: MenuView) {
-        this.listElement.appendChild(menuView.htmlElement);
+        this.children.push(menuView);
+        this.reloadDOM();
     }
     
     public insert(menuView: MenuView, index: number) {
-        this.listElement.children[index].insertAdjacentElement('beforebegin', menuView.htmlElement);
+        this.children.splice(index, 0, menuView);
+        this.reloadDOM();
     }
-
-    public get(index: number): MenuView {
-        return this.listElement;
-    }
-    public set(index: number, menuView: MenuView) {
-        this.remove(this.get(index));
-        this.insert(menuView, index - 1);
-    }
-
-
-    
     public remove(menuView: MenuView) {
-        menuView.htmlElement.remove();
+        this.removeMenuViewFromChildrenArray(menuView);
+        this.reloadDOM();
+    }
+    private removeMenuViewFromChildrenArray(menuView: MenuView) {
+        const index = this.children.indexOf(menuView);
+        this.children.splice(index, 1);
+    }
+
+    public set(menuView: MenuView, index: number) {
+        this.children[index] = menuView;
+        this.reloadDOM();
+    }
+    public get(index: number): MenuView {
+        return this.children[index];
+    }
+
+    private reloadDOM() {
+        this.removeAllHTMLChildren();
+        this.addAllMenuViewChildren();
+    }   
+
+
+    private addAllMenuViewChildren() {
+        this.children.forEach(child => {
+            this.listElement.appendChild(child.htmlElement);
+        });
+    }
+
+    private removeAllHTMLChildren() {
+        this.listElement.childNodes.forEach(child => child.remove());
     }
 }
