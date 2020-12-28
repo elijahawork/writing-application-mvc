@@ -33,3 +33,8 @@ This is the writing application with features:
     ```
   * Type annotations are suggested when using generics
   * Try and reduce side effects
+# "Electron Security Warning (Insecure Content-Security-Policy)"
+The warning `Electron Security Warning (Insecure Content-Security-Policy) This renderer process has either no Content Security` that shows up in the developers console of the electron application during development is simply due to the 
+fact that the app does not restrict XSS and Node.js filesystem because the application relies on the the Node.JS `fs` module. For more information visit the link below:
+
+[Electron Security Information](https://www.electronjs.org/docs/tutorial/security)
