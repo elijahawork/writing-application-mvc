@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { join } from "path";
 import { __PROJ_NAME } from "../index";
+import { List } from '../interfaces/List';
 
 type MetaDataObject = {
     id: number,
@@ -14,7 +15,7 @@ const META_DATA_DELIMITER = ';';
 
 const dataModelInstances: Map<number, DataModel> = new Map<number, DataModel>();
 
-export class DataModel {
+export class DataModel implements List<DataModel> {
     parent: DataModel | null = null;
     private children: DataModel[] = [];
     public static getDataModelById(id: number): DataModel {
@@ -25,17 +26,8 @@ export class DataModel {
 
     constructor(id: number, position: number, label: string) {
         this.metadata = { id, position, path: [-1], label };
-        this.memoizeDistinctDataModelInstance();
+        this.memoizeInstance();
         this.createFileIfNonexistant();
-    }
-
-    private static errorAndHaltProgramIfIdDoesNotExist(id: number) {
-        if (!dataModelInstances.has(id))
-            throw new Error(`Cannot`);
-    }
-
-    private memoizeDistinctDataModelInstance() {
-        dataModelInstances.set(this.id, this);
     }
 
     public get id() {
@@ -63,22 +55,35 @@ export class DataModel {
         this.metadata.path = path;
         this.save();
     }
+
+    private static errorAndHaltProgramIfIdDoesNotExist(id: number) {
+        if (!dataModelInstances.has(id))
+            throw new Error(`Cannot`);
+    }
+
+    private memoizeInstance() {
+        dataModelInstances.set(this.id, this);
+    }
+
+    public get(index: number): DataModel {
+        
+    }
+    public set(index: number, model: DataModel): void {
+
+    }
+
+    public add(model: DataModel, index: number): void;
+    public add(model: DataModel): void;
+    public add(model: DataModel, index?: number): void {
+
+    }
     
-    public push(dataModel: DataModel) {
-        this.children.push(dataModel);
-        dataModel.path = [...this.path, this.id];
-        this.updateChildrenPositions();
+    public remove(model: DataModel): void;
+    public remove(index: number): void;
+    public remove(predicate: DataModel | number) {
+
     }
-    public remove(dataModel: DataModel) {
-        const indexOfDataModel = this.children.indexOf(dataModel);
-        this.children.splice(indexOfDataModel, 1);
-        dataModel.deletePath();
-        this.updateChildrenPositions();
-    }
-    public insert(dataModel: DataModel, index: number) {
-        this.children.splice(index, 0, dataModel);
-        this.updateChildrenPositions();
-    }
+
     private updateChildrenPositions() {
         this.children.forEach((child, index) => {
             child.position = index;
