@@ -17,7 +17,8 @@ export class ArrayListElement<T extends CustomElement<'li'>> extends CustomEleme
         return this.internalArray.get(index);
     }
     public set(index: number, value: T): void {
-        return this.internalArray.set(index, value);
+        this.internalArray.set(index, value);
+        this.reloadDOM();
     }
 
     public add(element: T, index: number): void;
