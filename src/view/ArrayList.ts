@@ -11,6 +11,15 @@ export class ArrayList<T> implements List<T> {
         return Array.from(this.internalArray);
     }
     
+    public get(index: number): T {
+        this.errorOnOutOfBoundsIndex(index);
+        return this.internalArray[index];
+    }
+    public set(index: number, value: T): void {
+        this.errorOnOutOfBoundsIndex(index);
+        this.internalArray[index] = value;
+    }
+    
     public add(element: T, index: number): void;
     public add(element: T): void;
     public add(element: T, index?: number): void {
