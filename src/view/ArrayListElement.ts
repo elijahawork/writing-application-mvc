@@ -13,6 +13,13 @@ export class ArrayListElement<T extends CustomElement<'li'>> extends CustomEleme
         super('ul');
     }
 
+    public get(index: number): T {
+        return this.internalArray.get(index);
+    }
+    public set(index: number, value: T): void {
+        return this.internalArray.set(index, value);
+    }
+
     public add(element: T, index: number): void;
     public add(element: T): void;
     public add(element: T, index?: number): void {
