@@ -16,3 +16,18 @@ html, body {
 .column {
     height: 100%;
 }
+div.textarea {
+    position: relative;
+    border: 1px solid green;
+    
+}
+.debug {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid red ;
+    
+    /*
+    top: 300px;
+    left: 150px;
+    */
+}
