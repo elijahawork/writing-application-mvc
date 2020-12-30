@@ -25,7 +25,7 @@ export class TextArea extends CustomElement<'div'> {
         // el.innerHTML = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce quis lorem eleifend, ornare augue non, posuere leo. Mauris rutrum a diam eu dapibus. Aliquam tortor nisi, imperdiet quis libero sit amet, efficitur faucibus lorem. Fusce porta a erat sit amet ultrices. Proin ac luctus leo. Suspendisse massa odio, facilisis in lacinia vitae, varius vel est. Pellentesque interdum nulla nec placerat placerat. Quisque sodales leo eget dapibus dapibus. Phasellus hendrerit euismod gravida. Sed at accumsan justo, et imperdiet nisi. Sed venenatis rhoncus porta. Fusce tristique consequat nisl non dignissim. Ut semper eleifend nibh at egestas. Fusce eu tellus a dolor tempus tristique nec tincidunt eros. Nam egestas malesuada ipsum ut semper. Maecenas dictum non justo in aliquet.';
         // this.htmlElement.appendChild(el);
         this.htmlElement.appendChild(this.caret.htmlElement);
-        this.htmlElement.addEventListener("click", this.clickTest);
+        this.htmlElement.addEventListener("click", () => this.clickTest);
         const debug = document.createElement('p');
         debug.innerHTML = 'x:'+this.x+' , y:'+this.y;
         debug.className = 'debug';
@@ -76,7 +76,7 @@ export class TextArea extends CustomElement<'div'> {
            }
        }, 1000);
 
-       window.requestAnimationFrame(this.updateElements);
+       window.requestAnimationFrame(() => this.updateElements);
     }
     /*
     public click(ev: MouseEvent) {
