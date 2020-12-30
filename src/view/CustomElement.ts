@@ -1,32 +1,28 @@
+import { Coordinate } from "../types/Coordinate";
+
 export abstract class CustomElement<T extends keyof HTMLElementTagNameMap> {
     public readonly htmlElement: HTMLElementTagNameMap[T];
 
-    public tagName: string;
-    public className: string | undefined;
-    public pos: [number | undefined, number | undefined];
+    public readonly tagName: string;
     //public clientRect: ClientRect;
     constructor(tagName: T, className?: string) {
         this.tagName = tagName;
-        this.className = className;
-
         this.htmlElement = document.createElement(tagName);
-        if (className != null)
-            this.htmlElement.className = className;
-            
-        this.pos = [undefined, undefined];
-    
+
+        if (className)
+            this.htmlElement.classList.add(className);
     }
 
-    public getPos() {
-        var strQuery = this.tagName;
-        if (this.className) {
-            strQuery += "."+this.className;
-        }
-        const ele = document.querySelector(strQuery);
-        if (ele == null) return null;
-        console.log("ele="+ele.tagName);
-        const clientRect = ele.getBoundingClientRect();
-        this.pos = [clientRect.top, clientRect.left];
-        return this.pos;
+    get pos(): Coordinate {
+        const boundingClientRect = this.htmlElement.getBoundingClientRect();
+
+        if (boundingClientRect)
+            return { x: boundingClientRect.x, y: boundingClientRect.y };
+        
+        throw new Error('DOM element not appended. Cannot retrieve BOUNDING_CLIENT_RECT of orphan.');
+    }
+
+    get className() {
+        return this.htmlElement.className;
     }
 }
