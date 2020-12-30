@@ -9,8 +9,8 @@ var requestAnimationFrame = window.requestAnimationFrame || window.webkitRequest
 export function init() {
     //initialize the elements
     console.log("TESTING. PRINTED FROM WITHIN INDEX.TS");
-    let textDiv:TextArea = new TextArea(8);
-    textDiv.updateElements();
+    let textArea:TextArea = new TextArea(8);
+    textArea.updateElements();
     //let caretDiv: Caret = new Caret();
     
     //const curX = test.getX();
@@ -20,7 +20,7 @@ export function init() {
 
     const textEditor = document.querySelector("#texteditor");
     if (textEditor != null) {
-        textEditor.appendChild(textDiv.htmlElement);
+        textEditor.appendChild(textArea.htmlElement);
     }
     //document.body.appendChild(document.createElement("span"));
     
