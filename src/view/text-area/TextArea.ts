@@ -108,7 +108,3 @@ export class TextArea extends CustomElement<'div'> {
 
     }
 }
-
-console.log("TESTING. PRINTED FROM INSIDE TEXTAREA.TS");
-var text: TextArea = new TextArea(9);
-console.log("x=" + text.getX());
