@@ -1,6 +1,5 @@
 export abstract class CustomElement<T extends keyof HTMLElementTagNameMap> {
     public readonly htmlElement: HTMLElementTagNameMap[T];
-    public htmlElementa: HTMLElementTagNameMap[T];
 
     public tagName: string;
     public className: string | undefined;
@@ -13,9 +12,6 @@ export abstract class CustomElement<T extends keyof HTMLElementTagNameMap> {
         this.htmlElement = document.createElement(tagName);
         if (className != null)
             this.htmlElement.className = className;
-        this.htmlElementa = document.createElement(tagName);
-        if (className != null)
-            this.htmlElementa.className = className;
             
         this.pos = [undefined, undefined];
     

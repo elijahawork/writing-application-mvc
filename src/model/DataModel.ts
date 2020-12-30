@@ -65,9 +65,11 @@ export class DataModel implements List<DataModel> {
         dataModelInstances.set(this.id, this);
     }
 
+    
     public get(index: number): DataModel {
-        
+        return this;    
     }
+    
     public set(index: number, model: DataModel): void {
 
     }

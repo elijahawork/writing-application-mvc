@@ -1,33 +1,34 @@
 import fs from 'fs';
 import { join } from "path";
+import { TextArea } from './view/text-area/TextArea';
+import { Caret } from './view/text-area/Caret';
 
 export const __PROJ_NAME = join(__dirname, 'protected');
 
-<<<<<<< HEAD
-export function main() {
-    createProjectFolderIfNonexistant();
-    test();
-=======
+var requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
 export function init() {
     //initialize the elements
     console.log("TESTING. PRINTED FROM WITHIN INDEX.TS");
-    let test: TextArea = new TextArea(8);
+    let textDiv:TextArea = new TextArea(8);
+    textDiv.updateElements();
+    //let caretDiv: Caret = new Caret();
+    
     //const curX = test.getX();
     //console.log("test.x= " + curX);
     //var element = document.createElement("input"); 
     //document.body.appendChild(element);
 
     const textEditor = document.querySelector("#texteditor");
-    if (textEditor != null)
-    textEditor.appendChild(test.htmlElement);
-
+    if (textEditor != null) {
+        textEditor.appendChild(textDiv.htmlElement);
+    }
     //document.body.appendChild(document.createElement("span"));
     
+    //requestAnimationFrame(init);
 }
 export function main() {
     createProjectFolderIfNonexistant();
     init();
->>>>>>> ea59d52... Added TextArea debug paragraph feature
 }
 
 function createProjectFolderIfNonexistant() {

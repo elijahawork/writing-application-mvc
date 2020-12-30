@@ -21,6 +21,10 @@ div.textarea {
     border: 1px solid green;
     
 }
+div.textarea span {
+    font-size: 30px;
+    white-space: nowrap;
+}
 .debug {
     position: absolute;
     background-color: #ffffff;
@@ -30,4 +34,8 @@ div.textarea {
     top: 300px;
     left: 150px;
     */
+}
+.caret {
+    border: none;
+    font-size: 30px;
 }
