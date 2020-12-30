@@ -15,7 +15,7 @@ export abstract class CustomElement<T extends keyof HTMLElementTagNameMap> {
 
     get pos(): Coordinate {
         const boundingClientRect = this.htmlElement.getBoundingClientRect();
-
+        console.log("Getting pos from CustomElement");
         if (boundingClientRect)
             return { x: boundingClientRect.x, y: boundingClientRect.y };
         

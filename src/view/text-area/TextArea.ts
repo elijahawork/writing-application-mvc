@@ -1,9 +1,13 @@
+import { posix } from "path";
 import { CustomElement } from "../CustomElement";
 import { Caret } from "./Caret";
+import { TextLine } from "./TextLine";
 
+const NUM_LINES = 10;
 //for now we only have one TextArea object
 export class TextArea extends CustomElement<'div'> {
-    public spanList: Array<HTMLElementTagNameMap['span']>;
+    //public spanList: Array<HTMLElementTagNameMap['span']>;
+    public spanList: Array<TextLine>;
     
     x: number;
     y: number;
@@ -11,7 +15,9 @@ export class TextArea extends CustomElement<'div'> {
     constructor(x: number) {
         super('div', 'textarea');
         this.spanList = new Array();
-        this.addLine('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce quis lorem eleifend, ornare augue non, posuere leo. Mauris rutrum a diam eu dapibus. Aliquam tortor nisi, imperdiet quis libero sit amet, efficitur faucibus lorem. Fusce porta a erat sit amet ultrices. Proin ac luctus leo. Suspendisse massa odio, facilisis in lacinia vitae, varius vel est. Pellentesque interdum nulla nec placerat placerat. Quisque sodales leo eget dapibus dapibus. Phasellus hendrerit euismod gravida. Sed at accumsan justo, et imperdiet nisi. Sed venenatis rhoncus porta. Fusce tristique consequat nisl non dignissim. Ut semper eleifend nibh at egestas. Fusce eu tellus a dolor tempus tristique nec tincidunt eros. Nam egestas malesuada ipsum et');
+        for (let i=0; i<NUM_LINES; i++) {
+        this.addLine('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fu');
+        }
         this.x = 0;
         this.y = 0;
         this.caret = new Caret();
@@ -30,11 +36,10 @@ export class TextArea extends CustomElement<'div'> {
     }
 
     public addLine(line: string) {
-        const curSpan = document.createElement('span');
-        curSpan.innerHTML = line;
+        const curSpan = new TextLine(line);
         const spanListLen = this.spanList.length;
-        curSpan.id = 'span'+spanListLen;
-        this.htmlElement.appendChild(curSpan);
+        //curSpan.id = 'span'+spanListLen;
+        this.htmlElement.appendChild(curSpan.htmlElement);
         this.spanList.push(curSpan);
     }
 
@@ -80,8 +85,8 @@ export class TextArea extends CustomElement<'div'> {
     }
     */
 
-    public updateCursor(pos: [number, number]) {
-        
+    public updateCursor(pos:any) {
+        console.log("updateCursor"+pos);
     }
     public clickTest(ev: MouseEvent) {
         console.log("CLICKED");
@@ -91,14 +96,14 @@ export class TextArea extends CustomElement<'div'> {
         //this.updateElements();
         //update all elements that may change due to events
         const debug = document.querySelector(".debug");
-        const pos = super.getPos();
-        
-        if (pos != null && pos[0] != undefined && pos[1] != undefined) {
-            console.log("this.pos="+pos[0]+","+pos[1]);
-            const offset: [number, number] = [this.y-pos[0], this.x-pos[1]];
+        const posi = this.pos;
+        const b = this.pos;
+        if (posi != null && posi.y != undefined && posi.x != undefined) {
+            console.log("this.pos="+posi.y+","+posi.x);
+            const offset = {x: this.x-posi.x, y: this.y-posi.y};
             if (debug != null) {
-                debug.innerHTML = 'x:'+(Math.round(offset[1]))+' , y:'+(Math.round(offset[0]));
-                debug?.setAttribute("style", "top:"+(offset[0])+"px; left:"+(offset[1])+"px");
+                debug.innerHTML = 'x:'+(Math.round(offset.x))+' , y:'+(Math.round(offset.y));
+                debug?.setAttribute("style", "top:"+(offset.y)+"px; left:"+(offset.x)+"px");
             }
             //update the cursor
             this.updateCursor(offset);
