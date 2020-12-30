@@ -19,11 +19,17 @@ html, body {
 div.textarea {
     position: relative;
     border: 1px solid green;
-    
+    /*
+    display: flex;
+    align-items: stretch;
+    */
+    height: 100%;
 }
 div.textarea span {
     font-size: 30px;
+    /*
     white-space: nowrap;
+    */
 }
 .debug {
     position: absolute;
