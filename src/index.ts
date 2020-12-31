@@ -10,6 +10,9 @@ export function init() {
     //initialize the elements
     console.log("TESTING. PRINTED FROM WITHIN INDEX.TS");
     let textArea:TextArea = new TextArea(8);
+
+    throw new Error('On line 14');
+    
     textArea.updateElements();
     /*
     const eleList = document.querySelectorAll(".caret");

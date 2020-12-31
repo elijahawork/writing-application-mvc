@@ -1,4 +1,8 @@
 import { app, BrowserWindow } from 'electron';
+import * as tsElectronSourceMap from 'source-map-support' ;
+
+// allows errors to refer to the TypeScript file, etc. by use of source-maps
+tsElectronSourceMap.install();
 
 function createWindow () {
   const win = new BrowserWindow({
