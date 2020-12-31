@@ -10,18 +10,4 @@ export class Caret extends CustomElement<'span'> {
 
     }
 
-    public blink() {
-        const ele = document.querySelector("span.caret");
-        var cursor:boolean = true;
-        setInterval(function() {
-            if (cursor) {
-                ele?.setAttribute('style', 'opacity: 0');
-                cursor = false;
-            } else {
-                ele?.setAttribute('style', 'opacity: 1');
-                cursor = true;
-            }
-        }, WAIT_TIME);
-
-    }
 }

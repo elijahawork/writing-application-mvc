@@ -11,6 +11,14 @@ export function init() {
     console.log("TESTING. PRINTED FROM WITHIN INDEX.TS");
     let textArea:TextArea = new TextArea(8);
     textArea.updateElements();
+    /*
+    const eleList = document.querySelectorAll(".caret");
+    console.log("setting attribute style to opacity of 0. eleList.length="+eleList.length+" eleList="+eleList);
+    for (let i=0; i<eleList.length; i++) {
+        eleList[i].setAttribute('style', 'opacity: 0.1');
+    }
+    */
+   
     //let caretDiv: Caret = new Caret();
     
     //const curX = test.getX();

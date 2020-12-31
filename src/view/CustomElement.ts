@@ -13,21 +13,17 @@ export abstract class CustomElement<T extends keyof HTMLElementTagNameMap> {
             this.htmlElement.classList.add(className);
     }
 
-    public get pos() {
-        console.log("get pos()");
-        const obj = {x: 3, y: 2};
-        return obj;
-        /*
+    public get pos():Coordinate {
+        //console.log("get pos()");
         const boundingClientRect = this.htmlElement.getBoundingClientRect();
         if (boundingClientRect)
             return { x: boundingClientRect.x, y: boundingClientRect.y };
         
         throw new Error('DOM element not appended. Cannot retrieve BOUNDING_CLIENT_RECT of orphan.');
-        */
     }
 
     get className() {
-        console.log("get className()");
+        //console.log("get className()");
         return this.htmlElement.className;
     }
 }
