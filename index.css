@@ -16,3 +16,36 @@ html, body {
 .column {
     height: 100%;
 }
+div.textarea {
+    position: relative;
+    border: 1px solid green;
+    /*
+    display: flex;
+    align-items: stretch;
+    */
+    height: 100%;
+}
+div.textarea span {
+    font-size: 30px;
+    /*
+    white-space: nowrap;
+    */
+}
+.debug {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid red ;
+    
+    /*
+    top: 300px;
+    left: 150px;
+    */
+}
+.caret {
+    border: none;
+    font-size: 30px;
+    opacity: 0.8;
+}
+span.text-line {
+    position: initial;
+}

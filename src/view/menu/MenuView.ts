@@ -1,24 +1,12 @@
+import { List } from "../../interfaces/List";
+import { ArrayListElement } from "../ArrayListElement";
 import { CustomElement } from "../CustomElement";
 
 const menuViewInstances: MenuView[] = [];
 
-export class MenuView extends CustomElement<'li'> {
-    public readonly labelElement: HTMLButtonElement = document.createElement('button');
-    private readonly listElement: HTMLUListElement = document.createElement('ul');
-
-    private parent: MenuView | null = null;
-    private children: MenuView[] = [];
-
-    constructor(label?: string) {
-        super('li');
-
-        this.htmlElement.appendChild(this.labelElement);
-        this.htmlElement.appendChild(this.listElement);
-
-        this.label = label ?? '';
-
-        menuViewInstances.push(this);
-    }
+export class MenuView extends CustomElement<'li'> implements List<MenuView> {
+    public readonly labelElement: HTMLButtonElement = document.createElement('button');    
+    private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
     
     public set label(label: string) {
         this.labelElement.textContent = label;
@@ -27,76 +15,39 @@ export class MenuView extends CustomElement<'li'> {
         return this.labelElement.textContent!;
     }
 
-    public push(menuView: MenuView) {
-        this.adopt(menuView);
-        this.children.push(menuView);
-        this.reloadDOM();
-    
-    }
-    public insert(menuView: MenuView, index: number) {
-        this.adopt(menuView);
-        this.children.splice(index, 0, menuView);
-        this.reloadDOM();
-    }
-    public remove(menuView: MenuView) {
-        this.orphanize(menuView);
-        this.reloadDOM();
-    }
-    public placeAfter(menuView: MenuView) {
-        const placementWithinParent = this.getIndexWithinParent();
-
-        this.parent!.insert( menuView, placementWithinParent + 1);
-
-        this.reloadDOM();
-    }
-    public placeBefore(menuView: MenuView) {
-        const placementWithinParent = this.getIndexWithinParent();
-
-        this.parent!.insert( menuView, placementWithinParent);
-
-        this.reloadDOM();
-    }
-    public set(menuView: MenuView, index: number) {
-        this.children[index] = menuView;
-        this.reloadDOM();
-    }
     public get(index: number): MenuView {
-        return this.children[index];
+        return this.arrayList.get(index);
+    }
+    public set(index: number, value: MenuView): void {
+        this.arrayList.set(index, value);
     }
 
-    private adopt(menuView: MenuView) {
-        this.orphanize(menuView);
-        menuView.parent = this;
-    }
-    private orphanize(menuView: MenuView) {
-        if (menuView.parent) {
-            menuView.parent.removeMenuViewFromChildrenArray(menuView);
-            menuView.parent = null;
-        }
-    }
-    private getIndexWithinParent() {
-        if (!this.parent)
-            throw new Error('Cannot be a sibling of an independent node');
+    constructor(label?: string) {
+        super('li');
 
-        const placementWithinParent = this.parent.children.indexOf(this);
-        return placementWithinParent;
+        this.htmlElement.appendChild(this.labelElement);
+        this.htmlElement.appendChild(this.arrayList.htmlElement);
+
+        this.label = label ?? '';
+
+        this.memoizeInstance();
     }
-    private removeMenuViewFromChildrenArray(menuView: MenuView) {
-        const index = this.children.indexOf(menuView);
-        this.children.splice(index, 1);
+
+    public add(view: MenuView): void;
+    public add(view: MenuView, index: number): void;
+    public add(view: MenuView, index?: number): void {
+        // don't fight with the type system. overloading is working weirdly
+        this.arrayList.add(view, index!); 
     }
-    private reloadDOM() {
-        this.removeAllHTMLChildren();
-        this.addAllMenuViewChildren();
-    }   
-    private addAllMenuViewChildren() {
-        this.children.forEach(child => {
-            this.listElement.appendChild(child.htmlElement);
-        });
+
+    public remove(view: MenuView): void;
+    public remove(index: number): void;
+    public remove(predicate: number | MenuView): void {
+        // don't fight with the type system on this. overloading is working weirdly
+        this.arrayList.remove(predicate as number);
     }
-    private removeAllHTMLChildren() {
-        this.listElement.childNodes.forEach(child => {
-            child.remove();
-        });
+
+    private memoizeInstance() {
+        menuViewInstances.push(this);
     }
 }
