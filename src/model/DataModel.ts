@@ -15,13 +15,8 @@ const META_DATA_DELIMITER = ';';
 
 const dataModelInstances: Map<number, DataModel> = new Map<number, DataModel>();
 
-<<<<<<< HEAD
-export class DataModel {
-    private parent: DataModel | null = null;
-=======
 export class DataModel implements List<DataModel> {
     parent: DataModel | null = null;
->>>>>>> be71a0304220c436d4377b2fce9002622bce52cd
     private children: DataModel[] = [];
     private metadata: MetaDataObject;
 
@@ -36,14 +31,9 @@ export class DataModel implements List<DataModel> {
 
     constructor(id: number, position: number, label: string) {
         this.metadata = { id, position, path: [-1], label };
-        this.memoizeInstance();
         this.createFileIfNonexistant();
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> be71a0304220c436d4377b2fce9002622bce52cd
     public get id() {
         return this.metadata.id;
     }
