@@ -5,6 +5,9 @@ export class ArrayList<T> implements List<T> {
     get length() {
         return this.internalArray.length;
     }
+    get forEach() {
+        return this.internalArray.forEach;
+    }
 
     // duplicate, nonmodifiable array
     public toArray(): T[] {
