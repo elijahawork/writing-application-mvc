@@ -2,6 +2,7 @@ import fs from 'fs';
 import { join } from "path";
 import { __PROJ_NAME } from "../index";
 import { List } from '../interfaces/List';
+import { ArrayList } from '../lib/ArrayList';
 
 type MetaDataObject = {
     id: number,
@@ -17,7 +18,7 @@ const dataModelInstances: Map<number, DataModel> = new Map<number, DataModel>();
 
 export class DataModel implements List<DataModel> {
     private parent: DataModel | null = null;
-    private children: DataModel[] = [];
+    private children: ArrayList<DataModel> = new ArrayList<DataModel>();
     private metadata: MetaDataObject;
 
     public static getDataModelById(id: number): DataModel {
@@ -68,7 +69,7 @@ export class DataModel implements List<DataModel> {
     }
 
     public get(index: number): DataModel {
-        return this.children[index];
+        return this.children.get(index);
     }
     public set(index: number, model: DataModel): void {
         throw new Error('Cannot set a location')
@@ -78,16 +79,11 @@ export class DataModel implements List<DataModel> {
     public add(model: DataModel, index: number): void;
     public add(model: DataModel, index?: number): void {
         if (index === undefined)
-            index = this.children.length;
-
-        if (index == this.children.length)
-            this.children.push(model);
+            this.children.add(model);
         else
-            this.children.splice(index, 0, model);
+            this.children.add(model, index);
 
         this.adopt(model);
-        
-        model.position = index;
 
         this.updateChildrenFileLocationMetaData();
     }
@@ -105,8 +101,13 @@ export class DataModel implements List<DataModel> {
             model = this.get(predicate);
             index = predicate;
         }
+        
+        this.children.remove(predicate as number);
 
-        this.children.splice(index, 1);
+        // this should remove it whether or not its a datamodel or a 
+        // number but for the sake of TypeScript's funky 
+        // overloading we'll just call it a number
+        this.children.remove(predicate as number);
         
         model.deleteFile();
 
