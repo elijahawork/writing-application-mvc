@@ -49,7 +49,7 @@ export class ArrayList<T> implements List<T> {
         this.errorOnOutOfBoundsIndex(index);
         this.removeIndex(index);
     }
-    private indexOf(element: T) {
+    public indexOf(element: T): number {
         return this.internalArray.indexOf(element);
     }
     private removeIndex(index: number) {
