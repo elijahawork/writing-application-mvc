@@ -16,7 +16,7 @@ const META_DATA_DELIMITER = ';';
 const dataModelInstances: Map<number, DataModel> = new Map<number, DataModel>();
 
 export class DataModel implements List<DataModel> {
-    parent: DataModel | null = null;
+    private parent: DataModel | null = null;
     private children: DataModel[] = [];
     private metadata: MetaDataObject;
 
@@ -27,11 +27,6 @@ export class DataModel implements List<DataModel> {
     private static errorAndHaltProgramIfIdDoesNotExist(id: number) {
         if (!dataModelInstances.has(id))
             throw new Error(`Cannot`);
-    }
-
-    constructor(id: number, position: number, label: string) {
-        this.metadata = { id, position, path: [-1], label };
-        this.createFileIfNonexistant();
     }
 
     public get id() {
@@ -59,95 +54,117 @@ export class DataModel implements List<DataModel> {
         this.metadata.path = path;
         this.save();
     }
-
-    public push(dataModel: DataModel) {
-        this.adopt(dataModel);
-        this.children.push(dataModel);
-        this.assignPathAsChild(dataModel);
-        this.updateChildrenPositions();
+    public set label(label: string) {
+        this.metadata.label = label;
     }
 
-    private adopt(dataModel: DataModel) {
-        this.orphanize(dataModel);
-        dataModel.parent = this;
-        dataModel.path = [...this.path, this.id];
+    private get filePath() {
+        return join(__PROJ_NAME, this.id.toString());
     }
-    private orphanize(dataModel: DataModel) {
-        if (dataModel.parent)
-            dataModel.remove(dataModel);
+
+    constructor(id: number, position: number, label: string) {
+        this.metadata = { id, position, path: [-1], label };
+        this.createFileIfNonexistant();
+    }
+
+    public get(index: number): DataModel {
+        return this.children[index];
+    }
+    public set(index: number, model: DataModel): void {
+        throw new Error('Cannot set a location')
+    }
+
+    public add(model: DataModel): void;
+    public add(model: DataModel, index: number): void;
+    public add(model: DataModel, index?: number): void {
+        if (index === undefined)
+            index = this.children.length;
+
+        if (index == this.children.length)
+            this.children.push(model);
+        else
+            this.children.splice(index, 0, model);
+
+        this.adopt(model);
+        
+        model.position = index;
+
+        this.updateChildrenFileLocationMetaData();
+    }
+
+    public remove(model: DataModel): void;
+    public remove(index: number): void;
+    public remove(predicate: DataModel | number): void {
+        let model: DataModel;
+        let index: number;
+        
+        if (predicate instanceof DataModel) {
+            model = predicate;
+            index = this.indexOf(predicate);
+        } else {
+            model = this.get(predicate);
+            index = predicate;
+        }
+
+        this.children.splice(index, 1);
+        
+        model.deleteFile();
+
+        this.updateChildrenFileLocationMetaData();
+    }
+
+    public indexOf(model: DataModel) {
+        return this.children.indexOf(model);
+    }
+
+    // controls "parent" metadata when "adopting"
+    private adopt(model: DataModel) {
+        model.parent = this;
+        model.path = [...this.path, this.id];
+    }
+
+    private moveTo(model: DataModel) {
+        this.parent?.remove(this);
+        model.adopt(this);
+        model.add(this);
     }
     
-    public remove(dataModel: DataModel) {
-        dataModel.parent = null;
-        this.removeModelFromArray(dataModel);
-        dataModel.clearPath();
-        this.updateChildrenPositions();
+    public serialize(): string {
+        return JSON.stringify(this.metadata + META_DATA_DELIMITER);
     }
-    public save() {
-        const currentMetaDataAndTextContent = this.combineCurrentMetaDataStateAndContent();
-        this.writeMetaDataAndContentToFile(currentMetaDataAndTextContent);
-    }    
-    public insert(dataModel: DataModel, index: number) {
-        this.children.splice(index, 0, dataModel);
-        this.updateChildrenPositions();
-    }
-    public getTextContent() {
-        const metaDataAndFileContent = this.getMetaDataAndTextContent();
-        const fileContent = metaDataAndFileContent.substring(metaDataAndFileContent.indexOf(META_DATA_DELIMITER) + 1);
-        return fileContent;
-    }
-    public metaDataToJSON() {
-        return `${JSON.stringify(this.metadata)}${META_DATA_DELIMITER}`;
+    public static deserialize(serializedStringFileContent: string): MetaDataObject {
+        const endOfSerializedObject = serializedStringFileContent.indexOf(META_DATA_DELIMITER);
+        const serializedString = serializedStringFileContent.substring(0, endOfSerializedObject);
+        const deserializedObject = JSON.parse(serializedString) as MetaDataObject;
+        return deserializedObject;
     }
 
-    private memoizeDistinctDataModelInstance() {
-        dataModelInstances.set(this.id, this);
-    }
-    private assignPathAsChild(dataModel: DataModel) {
-        dataModel.path = [...this.path, this.id];
-    }
-    private clearPath() {
-        this.path = [];
-    }
-    private removeModelFromArray(dataModel: DataModel) {
-        const indexOfDataModel = this.children.indexOf(dataModel);
-        this.children.splice(indexOfDataModel, 1);
-    }
-    private updateChildrenPositions() {
+    private updateChildrenFileLocationMetaData(): void {
         this.children.forEach((child, index) => {
             child.position = index;
         });
     }
-    private writeMetaDataAndContentToFile(content: string) {
-        const filePath = this.getFilePath();
-        this.writeStringToFile(filePath, content);
-    }
-    private writeStringToFile(filePath: string, content: string) {
-        fs.writeFileSync(filePath, content);
-    }
-    private combineCurrentMetaDataStateAndContent() {
-        const currentMetaDataObject = this.metaDataToJSON();
-        const textContent = this.getTextContent();
-        return currentMetaDataObject + textContent;
+    
+    public save(): void {
+        this.writeToFile(this.serialize());
     }
 
-
-    private getMetaDataAndTextContent() {
-        this.createFileIfNonexistant();
-        return fs.readFileSync(this.getFilePath(), 'utf-8');
+    /**
+     * 
+     * @param content Strings that will be written, separated by a new line
+     */
+    private writeToFile(...content: string[]) {
+        fs.writeFileSync(this.filePath, content.join('\n'));
     }
 
     private createFileIfNonexistant() {
-        if (!fs.existsSync(this.getFilePath()))
-            fs.writeFileSync(this.getFilePath(), this.metaDataToJSON());
+        if (!fs.existsSync(this.filePath))
+            this.save();
+        else
+            console.log(`File "${this.label}" exists. Not creating a new one.`);
     }
-
-    private getFilePath() {
-        return join(__PROJ_NAME, this.id.toString());
-    }
-
-
+    
     public deleteFile() {
-        fs.unlinkSync(this.getFilePath());
+        fs.unlinkSync(this.filePath);
     }
 }
