@@ -38,6 +38,7 @@ export function init() {
 export function main() {
     createProjectFolderIfNonexistant();
     init();
+    test();
 }
 
 function createProjectFolderIfNonexistant() {
@@ -47,5 +48,5 @@ function createProjectFolderIfNonexistant() {
 
 // run all testing code in here.
 function test() {
-
+    
 }
