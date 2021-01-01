@@ -1,5 +1,5 @@
 import { List } from "../interfaces/List";
-import { ArrayList } from "./ArrayList";
+import { ArrayList } from "../lib/ArrayList";
 import { CustomElement } from "./CustomElement";
 
 export class ArrayListElement<T extends CustomElement<'li'>> extends CustomElement<'ul'> implements List<T> {
