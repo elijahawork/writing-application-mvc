@@ -108,21 +108,12 @@ export class DataModel implements List<DataModel> {
     public remove(model: DataModel): void;
     public remove(index: number): void;
     public remove(predicate: DataModel | number): void {
-        let model: DataModel;
-        let index: number;
-        
-        if (predicate instanceof DataModel) {
-            model = predicate;
-            index = this.indexOf(predicate);
-        } else {
-            model = this.get(predicate);
-            index = predicate;
-        }
-        
-        if (predicate instanceof DataModel)
+
+        if (typeof predicate === 'number') {
             this.children.remove(predicate);
-        else
-            this.children.remove(predicate as number);
+        } else {
+            this.children.remove(predicate);
+        }
         
         this.updateChildrenFileLocationMetaData();
     }
