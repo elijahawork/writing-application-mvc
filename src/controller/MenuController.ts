@@ -41,6 +41,7 @@ function getCoordinatesOfElementCenter(el: HTMLElement): Coordinate {
 export class MenuController implements List<MenuController> {
     public readonly menuView: MenuView;
     public readonly dataModel: DataModel;
+    private parent: MenuController | null = null;
     private controllers: ArrayList<MenuController> = new ArrayList<MenuController>();
 
     public static from(id: number, position: number, label: string) {
@@ -72,11 +73,13 @@ export class MenuController implements List<MenuController> {
         if (index === undefined) {
             this.menuView.add(menuController.menuView);
             this.dataModel.add(menuController.dataModel);
+            this.controllers.add(menuController);
         } else {
             this.menuView.add(menuController.menuView, index);
             this.dataModel.add(menuController.dataModel, index);
+            this.controllers.add(menuController, index);
         }
-
+        menuController.parent = this;
     }
 
     public remove(menuController: MenuController): void;
@@ -89,6 +92,14 @@ export class MenuController implements List<MenuController> {
             this.menuView.remove(predicate.menuView);
             this.dataModel.remove(predicate.dataModel);
         }
+        
+        if (typeof predicate === 'number') {
+            const controller = this.get(predicate);
+            controller.parent = null;
+        } else {
+            predicate.parent = null;
+        }
+        
     }
     
     private addMouseDownDraggingEvent() {
@@ -103,6 +114,8 @@ export class MenuController implements List<MenuController> {
             this.menuView.htmlElement.draggable = false;
             const { clientX: x, clientY: y } = ev;
             const nearestController = getNearestMenuController({ x, y }, this);
+            this.parent?.remove(this);
+            nearestController.add(this);
         })
     }
     private addDragEvent() {
