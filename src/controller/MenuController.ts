@@ -116,10 +116,7 @@ export class MenuController implements List<MenuController> {
             const nearestController = getNearestMenuController({ x, y }, this);
             const centerOfController = getCoordinatesOfElementCenter(nearestController.menuView.htmlElement);
 
-            this.parent?.remove(this);
-
             console.log(x, centerOfController);
-            
             
             if (x < centerOfController.x) {
                 if (y < centerOfController.y) {
