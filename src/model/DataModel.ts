@@ -133,12 +133,6 @@ export class DataModel implements List<DataModel> {
         model.path = [...this.path, this.id];
     }
 
-    private moveTo(model: DataModel) {
-        this.parent?.remove(this);
-        model.adopt(this);
-        model.add(this);
-    }
-    
     public serialize(): string {
         return JSON.stringify(this.metadata + META_DATA_DELIMITER);
     }
