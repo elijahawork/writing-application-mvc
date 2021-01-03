@@ -102,15 +102,11 @@ export class DataModel implements List<DataModel> {
             index = predicate;
         }
         
-        this.children.remove(predicate as number);
-
-        // this should remove it whether or not its a datamodel or a 
-        // number but for the sake of TypeScript's funky 
-        // overloading we'll just call it a number
-        this.children.remove(predicate as number);
+        if (predicate instanceof DataModel)
+            this.children.remove(predicate);
+        else
+            this.children.remove(predicate as number);
         
-        model.deleteFile();
-
         this.updateChildrenFileLocationMetaData();
     }
 
