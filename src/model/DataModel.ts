@@ -75,16 +75,21 @@ export class DataModel implements List<DataModel> {
         throw new Error('Cannot set a location')
     }
 
-    public insertModelBefore(model: DataModel) {
-        model.parent?.remove(model);
+    public insertModelBefore(model: DataModel) {        
+        if (model.parent) {
+            model.parent.remove(model);
+        }
         if (this.parent) {
             this.parent.add(model, this.parent.indexOf(this));
         } else {
             throw new Error('Cannot perform operation on orphan datamodel');
         }
     }
-    public insertModelAfter(model: DataModel) {
-        model.parent?.remove(model);
+    public insertModelAfter(model: DataModel) {        
+        if (model.parent) {
+            model.parent.remove(model);
+        }
+
         if (this.parent) {
             this.parent.add(model, this.parent.indexOf(this) + 1);
         } else {
