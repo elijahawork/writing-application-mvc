@@ -114,10 +114,35 @@ export class MenuController implements List<MenuController> {
             this.menuView.htmlElement.draggable = false;
             const { clientX: x, clientY: y } = ev;
             const nearestController = getNearestMenuController({ x, y }, this);
+            const centerOfController = getCoordinatesOfElementCenter(nearestController.menuView.htmlElement);
+
             this.parent?.remove(this);
-            nearestController.add(this);
+
+            console.log(x, centerOfController);
+            
+            
+            if (x < centerOfController.x) {
+                if (y < centerOfController.y) {
+                    nearestController.insertControllerBefore(this);
+                } else {
+                    nearestController.insertControllerAfter(this);
+                }
+            } else {
+                nearestController.add(this);
+            }
+
         })
     }
+
+    public insertControllerAfter(controller: MenuController) {
+        this.menuView.insertViewAfter(controller.menuView);
+        this.dataModel.insertModelAfter(controller.dataModel);
+    }
+    public insertControllerBefore(controller: MenuController) {
+        this.menuView.insertViewBefore(controller.menuView);
+        this.dataModel.insertModelBefore(controller.dataModel);
+    }
+
     private addDragEvent() {
         this.menuView.htmlElement.addEventListener('drag', (ev) => {
             ev.stopPropagation();

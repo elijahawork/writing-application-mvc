@@ -7,6 +7,7 @@ const menuViewInstances: MenuView[] = [];
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');    
     private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
+    private parent: MenuView | null = null;
     
     public set label(label: string) {
         this.labelElement.textContent = label;
@@ -20,6 +21,7 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     }
     public set(index: number, value: MenuView): void {
         this.arrayList.set(index, value);
+        value.parent = this;
     }
 
     constructor(label?: string) {
@@ -33,18 +35,40 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
         this.memoizeInstance();
     }
 
+    public insertViewBefore(view: MenuView) {
+        view.parent?.remove(view);
+        if (this.parent)
+            this.parent.arrayList.add(view, this.parent.arrayList.indexOf(this));
+        else
+            throw new Error('Cannot perform operation on orphan.')
+    } 
+    public insertViewAfter(view: MenuView) {
+        view.parent?.remove(view);
+        if (this.parent)
+            this.parent.arrayList.add(view, this.parent.arrayList.indexOf(this) + 1)
+        else
+            throw new Error('Cannot perform operation on orphan.')
+    }
+
     public add(view: MenuView): void;
     public add(view: MenuView, index: number): void;
     public add(view: MenuView, index?: number): void {
         // don't fight with the type system. overloading is working weirdly
         this.arrayList.add(view, index!); 
+        view.parent = this;
     }
 
     public remove(view: MenuView): void;
     public remove(index: number): void;
     public remove(predicate: number | MenuView): void {
-        // don't fight with the type system on this. overloading is working weirdly
-        this.arrayList.remove(predicate as number);
+        if (typeof predicate === 'number') {
+            const view = this.get(predicate);
+            this.arrayList.remove(view);
+            view.parent = null;
+        } else {
+            this.arrayList.remove(predicate);
+            predicate.parent = null;
+        }
     }
 
     private memoizeInstance() {

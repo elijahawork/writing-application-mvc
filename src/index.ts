@@ -2,6 +2,7 @@ import fs from 'fs';
 import { join } from "path";
 import { TextArea } from './view/text-area/TextArea';
 import { Caret } from './view/text-area/Caret';
+import { MenuController } from './controller/MenuController';
 
 export const __PROJ_NAME = join(__dirname, 'protected');
 
@@ -37,7 +38,7 @@ export function init() {
 }
 export function main() {
     createProjectFolderIfNonexistant();
-    init();
+    // init();
     test();
 }
 
@@ -48,5 +49,17 @@ function createProjectFolderIfNonexistant() {
 
 // run all testing code in here.
 function test() {
-    
+    let id = -1;
+    const manuscript = MenuController.from(id++, 0, 'Manuscript');
+    const act1 = MenuController.from(id++, 0, 'Act I');
+    const act2 = MenuController.from(id++, 1, 'Act II');
+    const act3 = MenuController.from(id++, 2, 'Act III');
+    const chapter1 = MenuController.from(id++, 0, 'Chapter I');
+    manuscript.add(act1);
+    manuscript.add(act2);
+    manuscript.add(act3);
+    act1.add(chapter1);
+
+    document.querySelector('.column')?.appendChild(manuscript.menuView.htmlElement);
+
 }

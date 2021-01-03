@@ -76,6 +76,7 @@ export class DataModel implements List<DataModel> {
     }
 
     public insertModelBefore(model: DataModel) {
+        model.parent?.remove(model);
         if (this.parent) {
             this.parent.add(model, this.parent.indexOf(this));
         } else {
@@ -83,6 +84,7 @@ export class DataModel implements List<DataModel> {
         }
     }
     public insertModelAfter(model: DataModel) {
+        model.parent?.remove(model);
         if (this.parent) {
             this.parent.add(model, this.parent.indexOf(this) + 1);
         } else {
