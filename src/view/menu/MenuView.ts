@@ -7,7 +7,7 @@ const menuViewInstances: MenuView[] = [];
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');    
     private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
-    private parent: MenuView | null = null;
+    public parent: MenuView | null = null;
     
     public set label(label: string) {
         this.labelElement.textContent = label;
@@ -44,10 +44,12 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     } 
     public insertViewAfter(view: MenuView) {
         view.parent?.remove(view);
-        if (this.parent)
+        if (this.parent) {
+            view.parent?.remove(view);
             this.parent.arrayList.add(view, this.parent.arrayList.indexOf(this) + 1)
-        else
-            throw new Error('Cannot perform operation on orphan.')
+        } else {
+            throw new Error('Cannot perform operation on orphan.');
+        }
     }
 
     public add(view: MenuView): void;
@@ -63,9 +65,11 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public remove(predicate: number | MenuView): void {
         if (typeof predicate === 'number') {
             const view = this.get(predicate);
+            view.htmlElement.remove();
             this.arrayList.remove(view);
             view.parent = null;
         } else {
+            predicate.htmlElement.remove();
             this.arrayList.remove(predicate);
             predicate.parent = null;
         }

@@ -41,7 +41,15 @@ export class ArrayListElement<T extends CustomElement<'li'>> extends CustomEleme
     public remove(element: T): void;
     public remove(predicate: number | T): void {
         // ignore complaints, overloading signature is fine it's just being stupid
-        this.internalArray.remove(predicate as number);
+        if (predicate instanceof CustomElement) {
+            const view = predicate;
+            view.htmlElement.remove();
+            this.internalArray.remove(predicate);
+        } else {
+            const view = this.get(predicate);
+            view.htmlElement.remove();
+            this.internalArray.remove(predicate);
+        }
         this.reloadDOM();
     }
 

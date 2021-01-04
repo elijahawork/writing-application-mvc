@@ -41,7 +41,7 @@ function getCoordinatesOfElementCenter(el: HTMLElement): Coordinate {
 export class MenuController implements List<MenuController> {
     public readonly menuView: MenuView;
     public readonly dataModel: DataModel;
-    private parent: MenuController | null = null;
+    public parent: MenuController | null = null;
     private controllers: ArrayList<MenuController> = new ArrayList<MenuController>();
 
     public static from(id: number, position: number, label: string) {
@@ -80,6 +80,9 @@ export class MenuController implements List<MenuController> {
             this.controllers.add(menuController, index);
         }
         menuController.parent = this;
+        console.log(`menuController ${menuController.dataModel.label}'s new parent is "${this.dataModel.label}"`);
+        console.log(menuController);
+        
     }
 
     public remove(menuController: MenuController): void;
@@ -116,8 +119,6 @@ export class MenuController implements List<MenuController> {
             const nearestController = getNearestMenuController({ x, y }, this);
             const centerOfController = getCoordinatesOfElementCenter(nearestController.menuView.htmlElement);
 
-            this.parent?.remove(this);
-            
             if (x < centerOfController.x) {
                 if (y < centerOfController.y) {
                     nearestController.insertControllerBefore(this);
@@ -132,10 +133,16 @@ export class MenuController implements List<MenuController> {
     }
 
     public insertControllerAfter(controller: MenuController) {
+        console.log(controller);
+        
+        if (controller.parent)
+            controller.parent?.remove(controller);
         this.menuView.insertViewAfter(controller.menuView);
         this.dataModel.insertModelAfter(controller.dataModel);
     }
     public insertControllerBefore(controller: MenuController) {
+        if (controller.parent)
+            controller.parent?.remove(controller);
         this.menuView.insertViewBefore(controller.menuView);
         this.dataModel.insertModelBefore(controller.dataModel);
     }
