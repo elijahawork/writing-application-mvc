@@ -76,6 +76,8 @@ export class DataModel implements List<DataModel> {
     }
 
     public insertModelBefore(model: DataModel) {        
+        console.log(model);
+        
         if (model.parent) {
             model.parent.remove(model);
         }
@@ -115,8 +117,10 @@ export class DataModel implements List<DataModel> {
     public remove(predicate: DataModel | number): void {
 
         if (typeof predicate === 'number') {
+            this.children.get(predicate).orphanize();
             this.children.remove(predicate);
         } else {
+            predicate.orphanize();
             this.children.remove(predicate);
         }
         
@@ -131,6 +135,11 @@ export class DataModel implements List<DataModel> {
     private adopt(model: DataModel) {
         model.parent = this;
         model.path = [...this.path, this.id];
+    }
+
+    private orphanize() {
+        this.parent = null;
+        this.path = [];
     }
 
     public serialize(): string {
