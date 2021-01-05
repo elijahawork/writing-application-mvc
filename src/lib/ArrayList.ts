@@ -5,9 +5,6 @@ export class ArrayList<T> implements List<T> {
     get length() {
         return this.internalArray.length;
     }
-    get forEach() {
-        return this.internalArray.forEach;
-    }
 
     // duplicate, nonmodifiable array
     public toArray(): T[] {
@@ -55,6 +52,10 @@ export class ArrayList<T> implements List<T> {
     public indexOf(element: T): number {
         return this.internalArray.indexOf(element);
     }
+    public forEach(callbackfn: (value: T, index: number, array: T[]) => void, thisArg?: any): void {
+        this.internalArray.forEach(callbackfn, thisArg);
+    }
+
     private removeIndex(index: number) {
         this.errorOnOutOfBoundsIndex(index);
         this.internalArray.splice(index, 1);
