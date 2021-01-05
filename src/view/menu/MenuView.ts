@@ -55,8 +55,10 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public add(view: MenuView): void;
     public add(view: MenuView, index: number): void;
     public add(view: MenuView, index?: number): void {
-        // don't fight with the type system. overloading is working weirdly
-        this.arrayList.add(view, index!); 
+        if (index === undefined)
+            this.arrayList.add(view);
+        else
+            this.arrayList.add(view, index);
         view.parent = this;
     }
 
