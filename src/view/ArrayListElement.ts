@@ -29,8 +29,10 @@ export class ArrayListElement<T extends CustomElement<'li'>> extends CustomEleme
     public add(element: T): void;
     public add(element: T, index?: number): void {
         this.errorOnAlreadyRenderedElement(element);
-        // ignore overload complaints
-        this.internalArray.add(element, index!);
+        if (index === undefined)
+            this.internalArray.add(element);
+        else
+            this.internalArray.add(element, index);
         this.reloadDOM();
     }
     private errorOnAlreadyRenderedElement(element: T) {
@@ -40,16 +42,9 @@ export class ArrayListElement<T extends CustomElement<'li'>> extends CustomEleme
     public remove(index: number): void;
     public remove(element: T): void;
     public remove(predicate: number | T): void {
-        // ignore complaints, overloading signature is fine it's just being stupid
-        if (predicate instanceof CustomElement) {
-            const view = predicate;
-            view.htmlElement.remove();
-            this.internalArray.remove(predicate);
-        } else {
-            const view = this.get(predicate);
-            view.htmlElement.remove();
-            this.internalArray.remove(predicate);
-        }
+        const element: T = predicate instanceof CustomElement ? predicate : this.get(predicate);
+        element.htmlElement.remove();
+        this.internalArray.remove(element);
         this.reloadDOM();
     }
 
