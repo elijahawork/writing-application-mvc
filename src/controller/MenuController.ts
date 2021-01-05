@@ -1,41 +1,17 @@
 import { List } from "../interfaces/List";
 import { ArrayList } from "../lib/ArrayList";
+import { HTMLProcessing } from "../lib/HTMLProcessing";
 import { DataModel } from "../model/DataModel";
 import { Coordinate } from "../types/Coordinate";
 import { MenuView } from "../view/menu/MenuView";
 
 const allMenuControllers: MenuController[] = [];
 
-function getNearestMenuController({ x, y }: Coordinate, ignore?: MenuController): MenuController {
-    let minController: MenuController | null = null;
-    let minDist = Number.POSITIVE_INFINITY;
-
-    for (const comparableController of allMenuControllers) {
-        if (comparableController == ignore)
-            continue;
-        const { x: x1, y: y1 } = getCoordinatesOfMenuControllerViewLabelCenter(comparableController);
-        const distance = distanceBetweenTwoCoordinates({ x, y }, { x: x1, y: y1 });
-
-        if (distance < minDist) {
-            minController = comparableController;
-            minDist = distance;
-        }
-    }
-
-    if (minController)
-        return minController;
-    throw new Error('Null controller');
-}
-
 function distanceBetweenTwoCoordinates(coordinate1: Coordinate, coordinate2: Coordinate) {
     return Math.sqrt((coordinate1.x - coordinate2.x) ** 2 + (coordinate1.y - coordinate2.y) ** 2);
 }
 function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuController): Coordinate {
-    return getCoordinatesOfElementCenter(menuController.menuView.labelElement);
-}
-function getCoordinatesOfElementCenter(el: HTMLElement): Coordinate {
-    const box = el.getBoundingClientRect();
-    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
 }
 
 export class MenuController implements List<MenuController> {
@@ -116,8 +92,8 @@ export class MenuController implements List<MenuController> {
             ev.stopPropagation();
             this.menuView.htmlElement.draggable = false;
             const { clientX: x, clientY: y } = ev;
-            const nearestController = getNearestMenuController({ x, y }, this);
-            const centerOfController = getCoordinatesOfElementCenter(nearestController.menuView.htmlElement);
+            const nearestController = this.getNearestMenuController({ x, y });
+            const centerOfController = getCoordinatesOfMenuControllerViewLabelCenter(nearestController);
 
             if (x < centerOfController.x) {
                 if (y < centerOfController.y) {
@@ -155,5 +131,26 @@ export class MenuController implements List<MenuController> {
 
     private memoize() {
         allMenuControllers.push(this);
+    }
+
+    private getNearestMenuController({ x, y }: Coordinate): MenuController {
+        let minController: MenuController | null = null;
+        let minDist = Number.POSITIVE_INFINITY;
+    
+        for (const comparableController of allMenuControllers) {
+            if (comparableController == this)
+                continue;
+            const { x: x1, y: y1 } = getCoordinatesOfMenuControllerViewLabelCenter(comparableController);
+            const distance = distanceBetweenTwoCoordinates({ x, y }, { x: x1, y: y1 });
+    
+            if (distance < minDist) {
+                minController = comparableController;
+                minDist = distance;
+            }
+        }
+    
+        if (minController)
+            return minController;
+        throw new Error('Null controller');
     }
 }
