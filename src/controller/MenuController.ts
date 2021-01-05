@@ -47,18 +47,23 @@ export class MenuController implements List<MenuController> {
     public add(menuController: MenuController, index: number): void;
     public add(menuController: MenuController, index?: number): void {
         if (index === undefined) {
-            this.menuView.add(menuController.menuView);
-            this.dataModel.add(menuController.dataModel);
-            this.controllers.add(menuController);
+            this.push(menuController);
         } else {
-            this.menuView.add(menuController.menuView, index);
-            this.dataModel.add(menuController.dataModel, index);
-            this.controllers.add(menuController, index);
+            this.insert(menuController, index);
         }
         menuController.parent = this;
-        console.log(`menuController ${menuController.dataModel.label}'s new parent is "${this.dataModel.label}"`);
-        console.log(menuController);
-        
+    }
+    private insert(menuController: MenuController, index: number) {
+        this.menuView.add(menuController.menuView, index);
+        this.dataModel.add(menuController.dataModel, index);
+        this.controllers.add(menuController, index);
+
+    } 
+    private push(menuController: MenuController) {
+        this.menuView.add(menuController.menuView);
+        this.dataModel.add(menuController.dataModel);
+        this.controllers.add(menuController);
+
     }
 
     public remove(menuController: MenuController): void;
@@ -109,16 +114,12 @@ export class MenuController implements List<MenuController> {
     }
 
     public insertControllerAfter(controller: MenuController) {
-        console.log(controller);
-        
-        if (controller.parent)
-            controller.parent?.remove(controller);
+        controller.parent?.remove(controller);
         this.menuView.insertViewAfter(controller.menuView);
         this.dataModel.insertModelAfter(controller.dataModel);
     }
     public insertControllerBefore(controller: MenuController) {
-        if (controller.parent)
-            controller.parent?.remove(controller);
+        controller.parent?.remove(controller);
         this.menuView.insertViewBefore(controller.menuView);
         this.dataModel.insertModelBefore(controller.dataModel);
     }
