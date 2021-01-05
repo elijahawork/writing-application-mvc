@@ -4,7 +4,7 @@ import { __PROJ_NAME } from "../index";
 import { List } from '../interfaces/List';
 import { ArrayList } from '../lib/ArrayList';
 
-type MetaDataObject = {
+export type MetaDataObject = {
     id: number,
     position: number,
     path: number[],
@@ -143,7 +143,7 @@ export class DataModel implements List<DataModel> {
     }
 
     public serialize(): string {
-        return JSON.stringify(this.metadata + META_DATA_DELIMITER);
+        return JSON.stringify(this.metadata) + META_DATA_DELIMITER;
     }
     public static deserialize(serializedStringFileContent: string): MetaDataObject {
         const endOfSerializedObject = serializedStringFileContent.indexOf(META_DATA_DELIMITER);
