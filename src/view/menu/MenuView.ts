@@ -1,8 +1,9 @@
 import { List } from "../../interfaces/List";
+import { ArrayList } from "../../lib/ArrayList";
 import { ArrayListElement } from "../ArrayListElement";
 import { CustomElement } from "../CustomElement";
 
-const menuViewInstances: MenuView[] = [];
+const menuViewInstances: ArrayList<MenuView> = new ArrayList<>();
 
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');
@@ -32,7 +33,7 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
 
         this.label = label ?? '';
 
-        this.memoizeInstance();
+        this.memoize();
     }
 
     public insertViewBefore(view: MenuView) {
@@ -90,7 +91,11 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
         this.removeView(this.get(index));
     }
 
-    private memoizeInstance() {
-        menuViewInstances.push(this);
+    private memoize() {
+        menuViewInstances.add(this);
+    }
+    public delete() {
+        this.htmlElement.remove();
+        menuViewInstances.remove(this);
     }
 }
