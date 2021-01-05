@@ -100,27 +100,32 @@ export class MenuController implements List<MenuController> {
             this.menuView.htmlElement.draggable = false;
             const { clientX: x, clientY: y } = ev;
             const nearestController = this.getNearestMenuController({ x, y });
-            const centerOfController = getCoordinatesOfMenuControllerViewLabelCenter(nearestController);
-
-            if (x < centerOfController.x) {
-                if (y < centerOfController.y) {
-                    nearestController.insertControllerBefore(this);
-                } else {
-                    nearestController.insertControllerAfter(this);
+            const placement = this.getPlacement({ x, y }, nearestController)
+            
+            switch (placement) {
+                case 'in': {
+                    nearestController.add(this);
                 }
-            } else {
-                nearestController.add(this);
+                    break;
+                case 'before': {
+                    nearestController.insertAdjacentBefore(this);
+                }
+                    break;
+                case 'after': {
+                    nearestController.insertAdjacentAfter(this);
+                }
+                    break;
             }
 
         })
     }
 
-    public insertControllerAfter(controller: MenuController) {
+    public insertAdjacentAfter(controller: MenuController) {
         controller.parent?.remove(controller);
         this.menuView.insertViewAfter(controller.menuView);
         this.dataModel.insertModelAfter(controller.dataModel);
     }
-    public insertControllerBefore(controller: MenuController) {
+    public insertAdjacentBefore(controller: MenuController) {
         controller.parent?.remove(controller);
         this.menuView.insertViewBefore(controller.menuView);
         this.dataModel.insertModelBefore(controller.dataModel);
@@ -135,7 +140,19 @@ export class MenuController implements List<MenuController> {
     private memoize() {
         allMenuControllers.push(this);
     }
+    private getPlacement({ x, y}: Coordinate, nearestController: MenuController): 'before' | 'after' | 'in' {
+        const centerOfController = getCoordinatesOfMenuControllerViewLabelCenter(nearestController);
 
+        if (x < centerOfController.x) {
+            if (y < centerOfController.y) {
+                return 'before';
+            } else {
+                return 'after';
+            }
+        } else {
+            return 'in';
+        }
+    }
     private getNearestMenuController({ x, y }: Coordinate): MenuController {
         let minController: MenuController | null = null;
         let minDist = Number.POSITIVE_INFINITY;
