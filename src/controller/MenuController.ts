@@ -1,5 +1,6 @@
 import { List } from "../interfaces/List";
 import { ArrayList } from "../lib/ArrayList";
+import { Formulae } from "../lib/Formulae";
 import { HTMLProcessing } from "../lib/HTMLProcessing";
 import { DataModel } from "../model/DataModel";
 import { Coordinate } from "../types/Coordinate";
@@ -7,9 +8,6 @@ import { MenuView } from "../view/menu/MenuView";
 
 const allMenuControllers: MenuController[] = [];
 
-function distanceBetweenTwoCoordinates(coordinate1: Coordinate, coordinate2: Coordinate) {
-    return Math.sqrt((coordinate1.x - coordinate2.x) ** 2 + (coordinate1.y - coordinate2.y) ** 2);
-}
 function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuController): Coordinate {
     return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
 }
@@ -161,7 +159,7 @@ export class MenuController implements List<MenuController> {
             if (comparableController == this)
                 continue;
             const { x: x1, y: y1 } = getCoordinatesOfMenuControllerViewLabelCenter(comparableController);
-            const distance = distanceBetweenTwoCoordinates({ x, y }, { x: x1, y: y1 });
+            const distance = Formulae.distance2D({ x, y }, { x: x1, y: y1 });
     
             if (distance < minDist) {
                 minController = comparableController;
