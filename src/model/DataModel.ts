@@ -177,7 +177,8 @@ export class DataModel implements List<DataModel> {
             console.log(`File "${this.label}" exists. Not creating a new one.`);
     }
     
-    public deleteFile() {
+    public delete() {
         fs.unlinkSync(this.filePath);
+        dataModelInstances.delete(this.id);
     }
 }

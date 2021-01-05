@@ -1,4 +1,6 @@
+import { ipcRenderer } from "electron";
 import { List } from "../interfaces/List";
+import { IPCChannel } from "../ipc/channels";
 import { ArrayList } from "../lib/ArrayList";
 import { Formulae } from "../lib/Formulae";
 import { HTMLProcessing } from "../lib/HTMLProcessing";
@@ -6,13 +8,26 @@ import { DataModel } from "../model/DataModel";
 import { Coordinate } from "../types/Coordinate";
 import { MenuView } from "../view/menu/MenuView";
 
-const allMenuControllers: MenuController[] = [];
+const menuControllerInstances: ArrayList<MenuController> = new ArrayList<>();
 
 function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuController): Coordinate {
     return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
 }
 
+ipcRenderer.on(IPCChannel.DELETE_SELECTED_FILE, () => {
+    console.log(MenuController.selectedControllers);
+    
+    MenuController.selectedControllers.forEach(controller => {
+        controller.delete();
+    })
+});
+ipcRenderer.on(IPCChannel.RENAME_SELECTED_FILE, () => {
+    console.log('rename');
+    
+});
+
 export class MenuController implements List<MenuController> {
+    public static selectedControllers: ArrayList<MenuController> = new ArrayList<>();
     public readonly menuView: MenuView;
     public readonly dataModel: DataModel;
     public parent: MenuController | null = null;
@@ -20,6 +35,11 @@ export class MenuController implements List<MenuController> {
 
     public static from(id: number, position: number, label: string) {
         return new MenuController(new MenuView(label), new DataModel(id, position, label));
+    }
+    public delete() {
+        this.dataModel.delete();
+        this.menuView.delete();
+        menuControllerInstances.remove(this);
     }
 
     constructor(menuView: MenuView, dataModel: DataModel) {
@@ -29,6 +49,17 @@ export class MenuController implements List<MenuController> {
         this.addMouseDownDraggingEvent();
         this.addDragEndEvent();
         this.addDragEvent();
+
+        this.menuView.labelElement.addEventListener('contextmenu', () => {
+            ipcRenderer.send(IPCChannel.CONTEXT_MENU_NAV_OPEN);
+        });
+
+        this.menuView.labelElement.addEventListener('focus', () => {
+            MenuController.selectedControllers.add(this);
+        });
+        this.menuView.labelElement.addEventListener('blur', () => {
+            MenuController.selectedControllers.remove(this);
+        });
 
         this.memoize();
     }
@@ -136,7 +167,7 @@ export class MenuController implements List<MenuController> {
     }
 
     private memoize() {
-        allMenuControllers.push(this);
+        menuControllerInstances.add(this);
     }
     private getPlacement({ x, y}: Coordinate, nearestController: MenuController): 'before' | 'after' | 'in' {
         const centerOfController = getCoordinatesOfMenuControllerViewLabelCenter(nearestController);
@@ -155,9 +186,10 @@ export class MenuController implements List<MenuController> {
         let minController: MenuController | null = null;
         let minDist = Number.POSITIVE_INFINITY;
     
-        for (const comparableController of allMenuControllers) {
+        menuControllerInstances.forEach((comparableController) => {
             if (comparableController == this)
-                continue;
+                return;
+
             const { x: x1, y: y1 } = getCoordinatesOfMenuControllerViewLabelCenter(comparableController);
             const distance = Formulae.distance2D({ x, y }, { x: x1, y: y1 });
     
@@ -165,7 +197,7 @@ export class MenuController implements List<MenuController> {
                 minController = comparableController;
                 minDist = distance;
             }
-        }
+        })
     
         if (minController)
             return minController;
