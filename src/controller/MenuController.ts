@@ -8,7 +8,7 @@ import { DataModel } from "../model/DataModel";
 import { Coordinate } from "../types/Coordinate";
 import { MenuView } from "../view/menu/MenuView";
 
-const menuControllerInstances: ArrayList<MenuController> = new ArrayList<>();
+const menuControllerInstances: ArrayList<MenuController> = new ArrayList<MenuController>();
 
 function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuController): Coordinate {
     return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
@@ -27,7 +27,7 @@ ipcRenderer.on(IPCChannel.RENAME_SELECTED_FILE, () => {
 });
 
 export class MenuController implements List<MenuController> {
-    public static selectedControllers: ArrayList<MenuController> = new ArrayList<>();
+    public static selectedControllers: ArrayList<MenuController> = new ArrayList<MenuController>();
     public readonly menuView: MenuView;
     public readonly dataModel: DataModel;
     public parent: MenuController | null = null;

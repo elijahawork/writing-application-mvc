@@ -3,7 +3,7 @@ import { ArrayList } from "../../lib/ArrayList";
 import { ArrayListElement } from "../ArrayListElement";
 import { CustomElement } from "../CustomElement";
 
-const menuViewInstances: ArrayList<MenuView> = new ArrayList<>();
+const menuViewInstances: ArrayList<MenuView> = new ArrayList<MenuView>();
 
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');
