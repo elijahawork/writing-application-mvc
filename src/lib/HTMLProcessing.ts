@@ -1,3 +1,5 @@
+import { Coordinate } from "../types/Coordinate";
+
 export namespace HTMLProcessing {
     export function getCoordinatesOfElementCenter(el: HTMLElement): Coordinate {
         const box = el.getBoundingClientRect();
