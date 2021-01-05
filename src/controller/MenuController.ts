@@ -70,20 +70,22 @@ export class MenuController implements List<MenuController> {
     public remove(index: number): void;
     public remove(predicate: MenuController | number): void {
         if (typeof predicate === 'number') {
-            this.menuView.remove(predicate);
-            this.dataModel.remove(predicate);
+            this.removeControllerByIndex(predicate);
         } else {
-            this.menuView.remove(predicate.menuView);
-            this.dataModel.remove(predicate.dataModel);
-        }
-        
-        if (typeof predicate === 'number') {
-            const controller = this.get(predicate);
-            controller.parent = null;
-        } else {
-            predicate.parent = null;
-        }
-        
+            this.removeController(predicate);
+        }   
+    }
+    private removeController(controller: MenuController) {
+        this.menuView.remove(controller.menuView);
+        this.dataModel.remove(controller.dataModel);
+        this.controllers.remove(controller);
+        controller.parent = null;    
+    }
+    private removeControllerByIndex(index: number) {
+        this.removeController(this.get(index));
+    }
+    public indexOf(controller: MenuController) {
+        return this.controllers.indexOf(controller);
     }
     
     private addMouseDownDraggingEvent() {
