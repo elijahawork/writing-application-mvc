@@ -18,6 +18,12 @@ function createWindow() {
 
   const contextMenuNav = Menu.buildFromTemplate([
     {
+      label: 'Add',
+      click: () => {
+        win.webContents.send(IPCChannel.ADD_NEW_FILE);
+      }
+    },
+    {
       label: 'Rename',
       click: () => {
         win.webContents.send(IPCChannel.RENAME_SELECTED_FILE);
