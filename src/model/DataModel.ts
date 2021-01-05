@@ -30,6 +30,18 @@ export class DataModel implements List<DataModel> {
             throw new Error(`Cannot`);
     }
 
+    public static generateID() {
+        let id = dataModelInstances.values.length;
+        console.log(dataModelInstances);
+        
+        console.log('Generating id, starting with', id);
+        
+        while (dataModelInstances.has(id)) {
+            id++;
+        }
+        return id;
+    }
+
     public get id() {
         return this.metadata.id;
     }
@@ -66,6 +78,11 @@ export class DataModel implements List<DataModel> {
     constructor(id: number, position: number, label: string) {
         this.metadata = { id, position, path: [-1], label };
         this.createFileIfNonexistant();
+        this.save();
+        this.memoize();
+    }
+    private memoize() {
+        dataModelInstances.set(this.id, this);
     }
 
     public get(index: number): DataModel {
@@ -180,5 +197,8 @@ export class DataModel implements List<DataModel> {
     public delete() {
         fs.unlinkSync(this.filePath);
         dataModelInstances.delete(this.id);
+        this.children.forEach(model => {
+            model.delete();
+        });
     }
 }

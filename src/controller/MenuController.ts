@@ -14,6 +14,13 @@ function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuContr
     return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
 }
 
+ipcRenderer.on(IPCChannel.ADD_NEW_FILE, () => {
+    const controller = MenuController.selectedControllers.get(MenuController.selectedControllers.length - 1);
+    const controllerFrom = MenuController.from(DataModel.generateID(), -1, 'Untitled');
+    controller.add(controllerFrom);
+    console.log(controller); 
+});
+
 ipcRenderer.on(IPCChannel.DELETE_SELECTED_FILE, () => {
     console.log(MenuController.selectedControllers);
     
