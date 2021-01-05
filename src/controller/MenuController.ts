@@ -10,28 +10,30 @@ import { MenuView } from "../view/menu/MenuView";
 
 const menuControllerInstances: ArrayList<MenuController> = new ArrayList<MenuController>();
 
-function getCoordinatesOfMenuControllerViewLabelCenter(menuController: MenuController): Coordinate {
-    return HTMLProcessing.getCoordinatesOfElementCenter(menuController.menuView.labelElement);
+function getCoordinatesOfMenuControllerLabelCenter(menuController: MenuController): Coordinate {
+    return HTMLProcessing
+        .getCoordinatesOfElementCenter(menuController.menuView.labelElement);
 }
 
-ipcRenderer.on(IPCChannel.ADD_NEW_FILE, () => {
-    const controller = MenuController.selectedControllers.get(MenuController.selectedControllers.length - 1);
-    const controllerFrom = MenuController.from(DataModel.generateID(), -1, 'Untitled');
+function addNewFileToSelected() {
+    const controller = MenuController.selectedControllers
+        .get(MenuController.selectedControllers.length - 1);
+    const controllerFrom = MenuController
+        .from(DataModel.generateID(), -1, 'Untitled');
     controller.add(controllerFrom);
-    console.log(controller); 
-});
+}
+function deleteSelectedFile() {
+    MenuController.selectedControllers
+        .forEach(controller => controller.delete());
+}
+function renameSelectedFile() {
+    const controller = MenuController.selectedControllers
+        .get(MenuController.selectedControllers.length - 1);
+}
 
-ipcRenderer.on(IPCChannel.DELETE_SELECTED_FILE, () => {
-    console.log(MenuController.selectedControllers);
-    
-    MenuController.selectedControllers.forEach(controller => {
-        controller.delete();
-    })
-});
-ipcRenderer.on(IPCChannel.RENAME_SELECTED_FILE, () => {
-    console.log('rename');
-    
-});
+ipcRenderer.on(IPCChannel.ADD_NEW_FILE, addNewFileToSelected);
+ipcRenderer.on(IPCChannel.DELETE_SELECTED_FILE,  deleteSelectedFile);
+ipcRenderer.on(IPCChannel.RENAME_SELECTED_FILE, renameSelectedFile);
 
 export class MenuController implements List<MenuController> {
     public static selectedControllers: ArrayList<MenuController> = new ArrayList<MenuController>();
@@ -78,7 +80,6 @@ export class MenuController implements List<MenuController> {
         return this.controllers.get(index);
     }
 
-    
     public add(menuController: MenuController): void;
     public add(menuController: MenuController, index: number): void;
     public add(menuController: MenuController, index?: number): void {
@@ -93,13 +94,11 @@ export class MenuController implements List<MenuController> {
         this.menuView.add(menuController.menuView, index);
         this.dataModel.add(menuController.dataModel, index);
         this.controllers.add(menuController, index);
-
     } 
     private push(menuController: MenuController) {
         this.menuView.add(menuController.menuView);
         this.dataModel.add(menuController.dataModel);
         this.controllers.add(menuController);
-
     }
 
     public remove(menuController: MenuController): void;
@@ -109,7 +108,7 @@ export class MenuController implements List<MenuController> {
             this.removeControllerByIndex(predicate);
         } else {
             this.removeController(predicate);
-        }   
+        }
     }
     private removeController(controller: MenuController) {
         this.menuView.remove(controller.menuView);
@@ -122,8 +121,7 @@ export class MenuController implements List<MenuController> {
     }
     public indexOf(controller: MenuController) {
         return this.controllers.indexOf(controller);
-    }
-    
+    }   
     private addMouseDownDraggingEvent() {
         this.menuView.labelElement.addEventListener('mousedown', (ev) => {
             ev.stopPropagation();
@@ -177,7 +175,8 @@ export class MenuController implements List<MenuController> {
         menuControllerInstances.add(this);
     }
     private getPlacement({ x, y}: Coordinate, nearestController: MenuController): 'before' | 'after' | 'in' {
-        const centerOfController = getCoordinatesOfMenuControllerViewLabelCenter(nearestController);
+        const centerOfController =
+            getCoordinatesOfMenuControllerLabelCenter(nearestController);
 
         if (x < centerOfController.x) {
             if (y < centerOfController.y) {
@@ -197,7 +196,8 @@ export class MenuController implements List<MenuController> {
             if (comparableController == this)
                 return;
 
-            const { x: x1, y: y1 } = getCoordinatesOfMenuControllerViewLabelCenter(comparableController);
+            const { x: x1, y: y1 } =
+                getCoordinatesOfMenuControllerLabelCenter(comparableController);
             const distance = Formulae.distance2D({ x, y }, { x: x1, y: y1 });
     
             if (distance < minDist) {
