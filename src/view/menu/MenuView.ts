@@ -5,10 +5,10 @@ import { CustomElement } from "../CustomElement";
 const menuViewInstances: MenuView[] = [];
 
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
-    public readonly labelElement: HTMLButtonElement = document.createElement('button');    
+    public readonly labelElement: HTMLButtonElement = document.createElement('button');
     private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
     public parent: MenuView | null = null;
-    
+
     public set label(label: string) {
         this.labelElement.textContent = label;
     }
@@ -36,25 +36,32 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     }
 
     public insertViewBefore(view: MenuView) {
+        // temporary
         view.parent?.remove(view);
-        if (this.parent)
-            this.parent.arrayList.add(view, this.parent.arrayList.indexOf(this));
-        else
-            throw new Error('Cannot perform operation on orphan.')
-    } 
+        
+        if (view.parent) {  
+            throw new Error('View not removed from DOM before being placed back down');
+        } else {
+            this.parent?.add(view, this.parent.indexOf(this));
+        }
+    }
     public insertViewAfter(view: MenuView) {
         view.parent?.remove(view);
-        if (this.parent) {
-            view.parent?.remove(view);
-            this.parent.arrayList.add(view, this.parent.arrayList.indexOf(this) + 1)
+        
+        if (view.parent) {
+            throw new Error('View not removed from DOM before being placed back down');
         } else {
-            throw new Error('Cannot perform operation on orphan.');
+            this.parent?.add(view, this.parent.indexOf(this) + 1);
         }
+    }
+    public indexOf(view: MenuView) {
+        return this.arrayList.indexOf(view);
     }
 
     public add(view: MenuView): void;
     public add(view: MenuView, index: number): void;
     public add(view: MenuView, index?: number): void {
+        view.parent?.remove(view);
         if (index === undefined)
             this.arrayList.add(view);
         else
@@ -66,15 +73,21 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public remove(index: number): void;
     public remove(predicate: number | MenuView): void {
         if (typeof predicate === 'number') {
-            const view = this.get(predicate);
-            view.htmlElement.remove();
-            this.arrayList.remove(view);
-            view.parent = null;
+            this.removeViewByIndex(predicate);
         } else {
-            predicate.htmlElement.remove();
-            this.arrayList.remove(predicate);
-            predicate.parent = null;
+            this.removeView(predicate);
         }
+    }
+    private removeView(view: MenuView) {
+        view.htmlElement.remove();
+        this.disown(view);
+    }
+    private disown(view: MenuView) {
+        view.parent = null;
+        this.arrayList.remove(view);
+    }
+    private removeViewByIndex(index: number) {
+        this.removeView(this.get(index));
     }
 
     private memoizeInstance() {
