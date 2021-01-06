@@ -36,14 +36,17 @@ ipcRenderer.on(IPCChannel.DELETE_SELECTED_FILE,  deleteSelectedFile);
 ipcRenderer.on(IPCChannel.RENAME_SELECTED_FILE, renameSelectedFile);
 
 export class MenuController implements List<MenuController> {
-    public static selectedControllers: ArrayList<MenuController> = new ArrayList<MenuController>();
+    public static selectedControllers: ArrayList<MenuController> =
+        new ArrayList<MenuController>();
     public readonly menuView: MenuView;
     public readonly dataModel: DataModel;
     public parent: MenuController | null = null;
-    private controllers: ArrayList<MenuController> = new ArrayList<MenuController>();
+    private controllers: ArrayList<MenuController> =
+        new ArrayList<MenuController>();
 
     public static from(id: number, position: number, label: string) {
-        return new MenuController(new MenuView(label), new DataModel(id, position, label));
+        return new MenuController(new MenuView(label),
+            new DataModel(id, position, label));
     }
     public delete() {
         this.dataModel.delete();
@@ -174,7 +177,8 @@ export class MenuController implements List<MenuController> {
     private memoize() {
         menuControllerInstances.add(this);
     }
-    private getPlacement({ x, y}: Coordinate, nearestController: MenuController): 'before' | 'after' | 'in' {
+    private getPlacement({ x, y }: Coordinate,
+        nearestController: MenuController): 'before' | 'after' | 'in' {
         const centerOfController =
             getCoordinatesOfMenuControllerLabelCenter(nearestController);
 
