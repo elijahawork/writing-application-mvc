@@ -7,8 +7,11 @@ const menuViewInstances: ArrayList<MenuView> = new ArrayList<MenuView>();
 
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');
+    private readonly collapseButtonElement: HTMLButtonElement = document.createElement('button');
     private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
     public parent: MenuView | null = null;
+
+    private isCollapsed: boolean = false;
 
     public set label(label: string) {
         this.labelElement.textContent = label;
@@ -31,9 +34,43 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
         this.htmlElement.appendChild(this.labelElement);
         this.htmlElement.appendChild(this.arrayList.htmlElement);
 
+        this.setupCollapseButton();
+
         this.label = label ?? '';
 
         this.memoize();
+    }
+    private setupCollapseButton() {
+        this.htmlElement.insertAdjacentElement('afterbegin', this.collapseButtonElement);
+        this.setCurrentlyExpandedSymbol();
+        this.collapseButtonElement.addEventListener('click', () => this.toggleCollapse());
+    }
+    private toggleCollapse() {
+        if (this.isCollapsed) {
+            this.expand();
+        } else {
+            this.collapse();
+        }
+    }
+    private expand() {
+        this.setCurrentlyExpandedSymbol();
+        for (let i = 0; i < this.arrayList.length; i++) {
+            this.arrayList.get(i).htmlElement.style.display = 'block';
+        }
+        this.isCollapsed = false;
+    }
+    private collapse() {
+        this.setCurrentlyCollapsedSymbol();
+        for (let i = 0; i < this.arrayList.length; i++) {
+            this.arrayList.get(i).htmlElement.style.display = 'none';
+        }
+        this.isCollapsed = true;
+    }
+    private setCurrentlyExpandedSymbol() {
+        this.collapseButtonElement.innerHTML = '▼';
+    }
+    private setCurrentlyCollapsedSymbol() {
+        this.collapseButtonElement.innerHTML = '⯈';
     }
 
     public insertViewBefore(view: MenuView) {
