@@ -76,6 +76,7 @@ export class DataModel implements List<DataModel> {
     }
     public set label(label: string) {
         this.metadata.label = label;
+        this.save();
     }
 
     private get filePath() {

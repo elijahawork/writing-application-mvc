@@ -8,6 +8,7 @@ const menuViewInstances: ArrayList<MenuView> = new ArrayList<MenuView>();
 export class MenuView extends CustomElement<'li'> implements List<MenuView> {
     public readonly labelElement: HTMLButtonElement = document.createElement('button');
     private readonly collapseButtonElement: HTMLButtonElement = document.createElement('button');
+    public readonly renameElement: HTMLInputElement = document.createElement('input');
     private readonly arrayList: ArrayListElement<MenuView> = new ArrayListElement<MenuView>();
     public parent: MenuView | null = null;
 
@@ -32,6 +33,7 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
         super('li');
 
         this.htmlElement.appendChild(this.labelElement);
+        this.setupRenameElement();
         this.htmlElement.appendChild(this.arrayList.htmlElement);
 
         this.setupCollapseButton();
@@ -40,10 +42,31 @@ export class MenuView extends CustomElement<'li'> implements List<MenuView> {
 
         this.memoize();
     }
+
+    private setupRenameElement() {
+        this.htmlElement.appendChild(this.renameElement);
+        this.renameElement.style.display = 'none';
+    }
+
+    public rename() {
+        this.labelElement.style.display = 'none';
+        this.renameElement.style.display = 'inline-block';
+        this.renameElement.value = this.labelElement.textContent ?? '';
+        this.renameElement.focus();
+        this.renameElement.setSelectionRange(0, this.renameElement.value.length);
+    }
+    public closeRename() {
+        this.labelElement.style.display = 'inline-block';
+        this.renameElement.style.display = 'none';
+        this.label = this.renameElement.value;
+    }
+
     private setupCollapseButton() {
         this.htmlElement.insertAdjacentElement('afterbegin', this.collapseButtonElement);
         this.setCurrentlyExpandedSymbol();
-        this.collapseButtonElement.addEventListener('click', () => this.toggleCollapse());
+        this.collapseButtonElement.addEventListener('click', () => {
+            this.toggleCollapse()
+        });
     }
     private toggleCollapse() {
         if (this.isCollapsed) {

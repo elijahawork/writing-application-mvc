@@ -1,4 +1,5 @@
 import { ipcRenderer } from "electron";
+import { emitKeypressEvents } from "readline";
 import { List } from "../interfaces/List";
 import { IPCChannel } from "../ipc/channels";
 import { ArrayList } from "../lib/ArrayList";
@@ -21,6 +22,9 @@ function addNewFileToSelected() {
     const controllerFrom = MenuController
         .from(DataModel.generateID(), -1, 'Untitled');
     controller.add(controllerFrom);
+    controllerFrom.menuView.labelElement.focus();
+    
+    renameSelectedFile();
 }
 function deleteSelectedFile() {
     MenuController.selectedControllers
@@ -29,6 +33,7 @@ function deleteSelectedFile() {
 function renameSelectedFile() {
     const controller = MenuController.selectedControllers
         .get(MenuController.selectedControllers.length - 1);
+    controller.menuView.rename();
 }
 
 ipcRenderer.on(IPCChannel.ADD_NEW_FILE, addNewFileToSelected);
@@ -53,6 +58,10 @@ export class MenuController implements List<MenuController> {
         this.menuView.delete();
         menuControllerInstances.remove(this);
     }
+    public set label(label: string) {
+        this.menuView.label = label;
+        this.dataModel.label = label;
+    }
 
     constructor(menuView: MenuView, dataModel: DataModel) {
         this.menuView = menuView;
@@ -69,10 +78,27 @@ export class MenuController implements List<MenuController> {
         this.menuView.labelElement.addEventListener('focus', () => {
             MenuController.selectedControllers.add(this);
         });
+        this.menuView.labelElement.addEventListener('keydown', (keyEvent) => {
+            if (keyEvent.key === 'F2') {
+                renameSelectedFile();
+            }
+        })
         this.menuView.labelElement.addEventListener('blur', () => {
             MenuController.selectedControllers.remove(this);
         });
 
+        this.menuView.renameElement.addEventListener('keypress', (keyEvent) => {
+            const key = keyEvent.key;
+            if (key === 'Enter') {
+                this.menuView.closeRename();
+                this.dataModel.label = this.menuView.renameElement.value;   
+            }
+        });
+        this.menuView.renameElement.addEventListener('blur', () => {
+            this.menuView.closeRename();
+        });
+
+        
         this.memoize();
     }
 
