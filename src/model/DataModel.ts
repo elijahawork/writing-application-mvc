@@ -25,11 +25,15 @@ export class DataModel implements List<DataModel> {
         DataModel.errorAndHaltProgramIfIdDoesNotExist(id);
         return dataModelInstances.get(id)!;
     }
-    private static errorAndHaltProgramIfIdDoesNotExist(id: number) {
-        if (!dataModelInstances.has(id))
-            throw new Error(`Cannot`);
+    public static deserialize(serializedStringFileContent: string): MetaDataObject {
+        const endOfSerializedObject =
+            serializedStringFileContent.indexOf(META_DATA_DELIMITER);
+        const serializedString =
+            serializedStringFileContent.substring(0, endOfSerializedObject);
+        const deserializedObject =
+            JSON.parse(serializedString) as MetaDataObject;
+        return deserializedObject;
     }
-
     public static generateID() {
         let id = dataModelInstances.values.length;
         console.log(dataModelInstances);
@@ -41,7 +45,11 @@ export class DataModel implements List<DataModel> {
         }
         return id;
     }
-
+    private static errorAndHaltProgramIfIdDoesNotExist(id: number) {
+        if (!dataModelInstances.has(id))
+            throw new Error(`DataModel with id "${id}" does not exist.`);
+    }
+    
     public get id() {
         return this.metadata.id;
     }
@@ -54,7 +62,6 @@ export class DataModel implements List<DataModel> {
     public get label() {
         return this.metadata.label;
     }
-
     public set id(id: number) {
         this.metadata.id = id;
         this.save();
@@ -81,9 +88,6 @@ export class DataModel implements List<DataModel> {
         this.save();
         this.memoize();
     }
-    private memoize() {
-        dataModelInstances.set(this.id, this);
-    }
 
     public get(index: number): DataModel {
         return this.children.get(index);
@@ -91,10 +95,7 @@ export class DataModel implements List<DataModel> {
     public set(index: number, model: DataModel): void {
         throw new Error('Cannot set a location')
     }
-
     public insertModelBefore(model: DataModel) {        
-        console.log(model);
-        
         if (model.parent) {
             model.parent.remove(model);
         }
@@ -108,97 +109,75 @@ export class DataModel implements List<DataModel> {
         if (model.parent) {
             model.parent.remove(model);
         }
-
         if (this.parent) {
             this.parent.add(model, this.parent.indexOf(this) + 1);
         } else {
             throw new Error('Cannot perform operation on orphan datamodel');
         }
     }
-
     public add(model: DataModel): void;
     public add(model: DataModel, index: number): void;
     public add(model: DataModel, index?: number): void {
-        if (index === undefined)
+        if (index === undefined) {
             this.children.add(model);
-        else
+        } else {
             this.children.add(model, index);
-
+        }
         this.adopt(model);
-
-        this.updateChildrenFileLocationMetaData();
+        this.updateChildrenFilePositionMetaData();
     }
-
     public remove(model: DataModel): void;
     public remove(index: number): void;
     public remove(predicate: DataModel | number): void {
-
         if (typeof predicate === 'number') {
-            this.children.get(predicate).orphanize();
+            const child = this.children.get(predicate);
+            child.orphanize();
             this.children.remove(predicate);
         } else {
             predicate.orphanize();
             this.children.remove(predicate);
         }
         
-        this.updateChildrenFileLocationMetaData();
+        this.updateChildrenFilePositionMetaData();
     }
-
     public indexOf(model: DataModel) {
         return this.children.indexOf(model);
     }
+    public serialize(): string {
+        return JSON.stringify(this.metadata) + META_DATA_DELIMITER;
+    }
+    public save(): void {
+        this.writeToFile(this.serialize());
+    }
+    public delete() {
+        fs.unlinkSync(this.filePath);
+        dataModelInstances.delete(this.id);
+        this.children.forEach(model => model.delete());
+    }
 
-    // controls "parent" metadata when "adopting"
     private adopt(model: DataModel) {
         model.parent = this;
         model.path = [...this.path, this.id];
     }
-
     private orphanize() {
         this.parent = null;
         this.path = [];
     }
-
-    public serialize(): string {
-        return JSON.stringify(this.metadata) + META_DATA_DELIMITER;
+    private memoize() {
+        dataModelInstances.set(this.id, this);
     }
-    public static deserialize(serializedStringFileContent: string): MetaDataObject {
-        const endOfSerializedObject = serializedStringFileContent.indexOf(META_DATA_DELIMITER);
-        const serializedString = serializedStringFileContent.substring(0, endOfSerializedObject);
-        const deserializedObject = JSON.parse(serializedString) as MetaDataObject;
-        return deserializedObject;
-    }
-
-    private updateChildrenFileLocationMetaData(): void {
+    private updateChildrenFilePositionMetaData(): void {
         this.children.forEach((child, index) => {
             child.position = index;
         });
-    }
-    
-    public save(): void {
-        this.writeToFile(this.serialize());
-    }
-
-    /**
-     * 
-     * @param content Strings that will be written, separated by a new line
-     */
+    }    
     private writeToFile(...content: string[]) {
         fs.writeFileSync(this.filePath, content.join('\n'));
     }
-
     private createFileIfNonexistant() {
         if (!fs.existsSync(this.filePath))
             this.save();
         else
             console.log(`File "${this.label}" exists. Not creating a new one.`);
-    }
-    
-    public delete() {
-        fs.unlinkSync(this.filePath);
-        dataModelInstances.delete(this.id);
-        this.children.forEach(model => {
-            model.delete();
-        });
-    }
+    }    
 }
