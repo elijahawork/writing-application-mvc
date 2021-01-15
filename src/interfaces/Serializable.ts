@@ -1,3 +1,3 @@
-export interface Serialiazable {
+export interface Serializable {
     serialize(): string;
 }
