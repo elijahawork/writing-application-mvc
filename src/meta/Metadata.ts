@@ -50,7 +50,7 @@ export class Metadata implements Serializable {
         idMap.set(this.id, this);
     }
 
-    private writeToDisk() {
+    protected writeToDisk() {
         fs.writeFileSync(this.filePath, this.serialize());
     }
     public static deserialize(serializedString: string): Metadata {
