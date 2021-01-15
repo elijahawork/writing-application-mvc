@@ -1,11 +1,11 @@
 import { __PROJ_NAME } from "..";
 import { join } from 'path';
 import fs from 'fs';
-import { Serialiazable } from "../interfaces/Serializable";
+import { Serializable } from "../interfaces/Serializable";
 
 const idMap: Map<number, Metadata> = new Map<number, Metadata>();
 
-export class Metadata implements Serialiazable {
+export class Metadata implements Serializable {
     private _id: number;
     private _goalWords: number;
     private _notes: string;
