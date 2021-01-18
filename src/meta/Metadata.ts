@@ -1,5 +1,7 @@
 import { Serializable } from "../interfaces/Serializable";
 
+export const metadataIdMap = new Map<number, Metadata>();
+
 export class Metadata implements Serializable {
     public id: number;
     public goalWords: number;
@@ -9,6 +11,7 @@ export class Metadata implements Serializable {
         this.id = id;
         this.goalWords = goalWords;
         this.notes = notes;
+        metadataIdMap.set(id, this);
     }
 
     public serialize() {
