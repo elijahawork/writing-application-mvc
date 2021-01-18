@@ -18,4 +18,36 @@ export class FileMetadata extends Metadata {
         this.templateId = templateId;
         this.timeline = timeline;
     }
+
+    public serialize(): string {
+        const { id, goalWords, notes, label, parentId, position, conceptIds, templateId, timeline } = this;
+        const serializedConceptIds = Array.from(conceptIds);
+        const serializedTimeline = timeline.toJSONObject();
+
+        const jsonObject = {
+            id,
+            goalWords,
+            notes,
+            label,
+            parentId,
+            position,
+            conceptIds: serializedConceptIds,
+            templateId,
+            timeline: serializedTimeline
+        };
+        
+        return JSON.stringify(jsonObject);
+    }
+}
+
+export type SerializedFileMetadata = {
+    id: number,
+    goalWords: number,
+    notes: string,
+    label: string,
+    parentId: number,
+    position: number,
+    conceptIds: number[],
+    templateId: number,
+    timeline: { [key: number]: number };
 }
