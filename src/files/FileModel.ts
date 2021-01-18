@@ -44,4 +44,9 @@ export class FileModel extends Model<FileMetadata> {
             conceptIds, templateId, timeline));
     }
 
+    public insertChildAtIndex(child: FileModel, index: number) {
+        this.children.splice(index, 0, child);
+        child.parentId = this.id;
+        this.children.forEach((child, index) => child.position = index);
+    }
 }
