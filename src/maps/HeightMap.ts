@@ -88,4 +88,8 @@ export class HeightMap implements Map<number, number>, Serializable {
     public serialize(): string {
         return JSON.stringify(this.heightMap);
     }
+
+    public toJSONObject(): { [key: number]: number } {
+        return Object.assign(this.heightMap);
+    }
 }
