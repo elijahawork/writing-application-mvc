@@ -1,17 +1,10 @@
-import path from 'path';
-import fs from 'fs';
 import { __PROJ_NAME } from '..';
 import { HeightMap } from '../maps/HeightMap';
 import { FileMetadata } from "../meta/FileMetadata";
+import { Model } from './Model';
 
-export class FileModel {
-    private metadata: FileMetadata;
-
-    private children: FileModel[] = [];
-    
-    public get filePath() {
-        return path.join(__PROJ_NAME, this.metadata.id.toString());
-    }
+export class FileModel extends Model<FileMetadata> {
+    private readonly children: FileModel[] = [];
 
     public get label() {
         return this.metadata.label;
@@ -46,14 +39,9 @@ export class FileModel {
     constructor(id: number, goalWords: number, notes: string, label: string,
         parentId: number, position: number, conceptIds: Set<number>,
         templateId: number, timeline: HeightMap) {
-        
-        this.metadata = new FileMetadata(id, goalWords, notes, label,
-            parentId, position, conceptIds, templateId, timeline);
-
-        this.writeToDisk();
+            
+        super(new FileMetadata(id, goalWords, notes, label, parentId, position,
+            conceptIds, templateId, timeline));
     }
 
-    private writeToDisk() {
-        fs.writeFileSync(this.filePath, this.metadata.serialize());
-    }
 }
