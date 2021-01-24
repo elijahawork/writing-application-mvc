@@ -1,4 +1,3 @@
-import { Metadata, metadataIdMap } from "../../meta/Metadata";
 import { FileContentModel } from "./FileContentModel";
 import { FileMetadataModel } from "./FileMetadataModel";
 import { FileMindmapModel } from "./FileMindmapModel";
