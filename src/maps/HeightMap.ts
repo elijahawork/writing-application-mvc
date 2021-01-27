@@ -10,6 +10,13 @@ export class HeightMap implements Map<number, number>, Serializable {
         return Object.keys(this.heightMap).length;
     }
     
+    constructor();
+    constructor(json: { [key: number]: number })
+    constructor(json?: { [key: number]: number }) {
+        if (json)
+            this.heightMap = json;
+    }
+
     public clear(): void {
         for (const key of Object.keys(this.heightMap) ) {
             this.delete(parseInt(key));
@@ -87,5 +94,9 @@ export class HeightMap implements Map<number, number>, Serializable {
     }
     public serialize(): string {
         return JSON.stringify(this.heightMap);
+    }
+
+    public toJSONObject(): { [key: number]: number } {
+        return Object.assign(this.heightMap);
     }
 }
