@@ -1,5 +1,12 @@
 import React from 'react';
+import Explorer from './explorer/Explorer';
 
-export class App extends React.Component {
+export default class App extends React.Component {
+
     
+    render() {
+        return (
+            <Explorer/>
+        );
+    }
 }
