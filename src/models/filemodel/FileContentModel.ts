@@ -1,4 +1,7 @@
+import { readFileSync } from "fs";
+import { parse } from "path";
 import { Model } from "../Model";
+import { FileTimelineModel } from "./FileTimelineModel";
 
 export class FileContentModel extends Model {
     // for speedy recovery of data
@@ -16,4 +19,16 @@ export class FileContentModel extends Model {
         super(id, 'content');
         this._content = content;
     }
+
+    
+    static read(path: string) {
+        if (parse(path).name === 'content') {
+            const jsonContent = readFileSync(path, 'utf-8');
+            const { id, _content } = JSON.parse(jsonContent) as FileContentModel;
+            return new FileContentModel(id, _content);
+        } else {
+            throw new TypeError('Cannot read. Ext is not correct');
+        }
+    }
+
 }

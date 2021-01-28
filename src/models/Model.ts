@@ -1,4 +1,4 @@
-import { writeFile } from "fs";
+import { readFileSync, writeFile } from "fs";
 import { join } from "path";
 import { __PROJ_NAME } from "..";
 
@@ -11,8 +11,15 @@ export abstract class Model {
         this.ext = ext;
     }
 
+    get filePath() {
+        return join(this.folderPath, this.ext);
+    }
+    get folderPath() {
+        return join(__PROJ_NAME, this.id.toString());
+    }
+
     write() {
-        writeFile(join(__PROJ_NAME, this.id.toString(), this.ext), this.serialize(), (err) => {
+        writeFile(this.filePath, this.serialize(), (err) => {
             if (err) {
                 console.log('Ran into error when trying to write file.');
                 throw err;
@@ -22,6 +29,7 @@ export abstract class Model {
 
     serialize() {
         const { id, ext, ...modelComponents } = this;
+        
         // remove extension from serialization
         return JSON.stringify({ id, ...modelComponents });
     }
