@@ -5,47 +5,10 @@ html, body {
     width: 100%;
     height: 100%;
     margin: 0;
-    padding: 0;
 }
-#display-grid {
+#root {
+    width: inherit;
+    height: inherit;
     display: grid;
-    grid-template-columns: 30% 40% 30%;
-    width: 100%;
-    height: 100%;
-}
-.column {
-    height: 100%;
-}
-div.textarea {
-    position: relative;
-    border: 1px solid green;
-    /*
-    display: flex;
-    align-items: stretch;
-    */
-    height: 100%;
-}
-div.textarea span {
-    font-size: 30px;
-    /*
-    white-space: nowrap;
-    */
-}
-.debug {
-    position: absolute;
-    background-color: #ffffff;
-    border: 1px solid red ;
-    
-    /*
-    top: 300px;
-    left: 150px;
-    */
-}
-.caret {
-    border: none;
-    font-size: 30px;
-    opacity: 0.8;
-}
-span.text-line {
-    position: initial;
+    grid-template-columns: 25% 50% 25%;
 }

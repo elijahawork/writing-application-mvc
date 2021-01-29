@@ -8,6 +8,10 @@ export default class Explorer extends React.Component {
                 {
                     label: 'Folder 1',
                     files: []
+                },
+                {
+                    label: 'File I',
+                    files: []
                 }
             ]} />
         </div>
