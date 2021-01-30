@@ -1,5 +1,11 @@
-# writing-application-mvc
- 
+# Aesop Writing Software
+
+The Aesop Writing Software is designed to provide a feature-rich writing environment, whether that be for fiction or non-fiction writing. It has a rich text editor that allows you to edit scenes one by one, or in groups. It has a mind-mapping device
+to link ideas to, plot diagram and timeline design, along with citation and resource management that makes it easy
+to organize sources and compile in any format desired.
+
+![alt text](https://user-images.githubusercontent.com/64611104/106046714-3d0d8300-60a8-11eb-8deb-c2473e55c76f.png)
+
 This is the writing application with features:
 * Basic Text Editor
 * Mind-Mapper
