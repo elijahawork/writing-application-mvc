@@ -1,16 +1,15 @@
-import { join } from "path";
-import React from 'react';
-import reactDOM from 'react-dom';
-import App from './views/App';
-export const __PROJ_NAME = join(__dirname, 'protected');
-export const __PROJECT_ROOT_ID = -1;
+import { join } from 'path';
+import Log from './logs/Log';
 
-function init() { 
-    reactDOM.render(<App />, document.getElementById('root'));
-}
-function test() { }
+export const __PROJ_NAME = join(__dirname, '..', 'protected');
+export const __PROJECT_ROOT_ID = -1;
+export const __LOG_PATH = join(__dirname, '..', 'logs');
+export const log = Log.create();
+
+function init() {}
+function test() {}
 
 export function main() {
-    test();
-    init();
+  test();
+  init();
 }
