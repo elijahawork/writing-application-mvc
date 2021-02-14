@@ -1,11 +1,11 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { __PROJ_NAME } from '../..';
-import IStoryDivision from '../interface/IStoryDivision';
+import { __PROJ_NAME } from '..';
+import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 
 class StoryDivisonModel {
   private static EXT = 'sdmeta';
-  private readonly model: IStoryDivision;
+  private readonly model: IStoryDivisionSchema;
 
   private get filePath() {
     return join(__PROJ_NAME, `${this.id}.${StoryDivisonModel.EXT}`);
@@ -40,7 +40,7 @@ class StoryDivisonModel {
     return this.model.content;
   }
 
-  constructor(storyDivisionObject: IStoryDivision) {
+  constructor(storyDivisionObject: IStoryDivisionSchema) {
     this.model = storyDivisionObject;
   }
 

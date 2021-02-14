@@ -1,11 +1,11 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { __PROJ_NAME } from '../..';
-import IMindMap from '../interface/IMindMap';
+import { __PROJ_NAME } from '..';
+import IMindMapSchema from '../schema/IMindMapSchema';
 
 class MindMapModel {
   private static EXT = 'mm';
-  private readonly model: IMindMap;
+  private readonly model: IMindMapSchema;
 
   private get filePath() {
     return join(__PROJ_NAME, `${this.id}.${MindMapModel.EXT}`);
@@ -26,7 +26,7 @@ class MindMapModel {
     return this.model.idOfStoryDivisionsRelatedTo;
   }
 
-  constructor(mindMapObject: IMindMap) {
+  constructor(mindMapObject: IMindMapSchema) {
     this.model = mindMapObject;
   }
 

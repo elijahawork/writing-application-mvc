@@ -1,11 +1,11 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { __PROJ_NAME } from '../..';
-import IEventArc from '../interface/IEventArc';
+import { __PROJ_NAME } from '..';
+import IEventArcSchema from '../schema/IEventArcSchema';
 
 class EventArcModel {
   private static EXT = 'eam';
-  private readonly model: IEventArc;
+  private readonly model: IEventArcSchema;
 
   private get filePath() {
     return join(__PROJ_NAME, `${this.id}.${EventArcModel.EXT}`);
@@ -26,7 +26,7 @@ class EventArcModel {
     return this.model.eventImportanceMap;
   }
 
-  constructor(eventArcObject: IEventArc) {
+  constructor(eventArcObject: IEventArcSchema) {
     this.model = eventArcObject;
   }
 
