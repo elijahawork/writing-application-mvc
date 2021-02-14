@@ -1,20 +1,10 @@
-import { writeFileSync } from 'fs';
-import { join } from 'path';
-import { __PROJ_NAME } from '..';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
+import AbstractModel from './AbstractModel';
 
-class StoryDivisonModel {
-  private static EXT = 'sdmeta';
-  private readonly model: IStoryDivisionSchema;
+class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
+  protected EXT: string = 'stdv';
+  protected model: IStoryDivisionSchema;
 
-  private get filePath() {
-    return join(__PROJ_NAME, `${this.id}.${StoryDivisonModel.EXT}`);
-  }
-
-  public set id(v) {
-    this.model.id = v;
-    this.updateFile();
-  }
   public set parentId(v) {
     this.model.parentId = v;
     this.updateFile();
@@ -27,9 +17,6 @@ class StoryDivisonModel {
     this.model.content = v;
     this.updateFile();
   }
-  public get id() {
-    return this.model.id;
-  }
   public get parentId() {
     return this.model.parentId;
   }
@@ -41,11 +28,8 @@ class StoryDivisonModel {
   }
 
   constructor(storyDivisionObject: IStoryDivisionSchema) {
+    super();
     this.model = storyDivisionObject;
-  }
-
-  private updateFile() {
-    writeFileSync(this.filePath, JSON.stringify(this.model));
   }
 }
 

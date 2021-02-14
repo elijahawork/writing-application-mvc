@@ -1,23 +1,10 @@
-import { writeFileSync } from 'fs';
-import { join } from 'path';
-import { __PROJ_NAME } from '..';
 import IMindMapSchema from '../schema/IMindMapSchema';
+import AbstractModel from './AbstractModel';
 
-class MindMapModel {
-  private static EXT = 'mm';
-  private readonly model: IMindMapSchema;
+class MindMapModel extends AbstractModel<IMindMapSchema> {
+  protected readonly EXT: string = 'mmap';
+  protected readonly model: IMindMapSchema;
 
-  private get filePath() {
-    return join(__PROJ_NAME, `${this.id}.${MindMapModel.EXT}`);
-  }
-
-  public set id(v) {
-    this.model.id = v;
-    this.updateFile();
-  }
-  public get id() {
-    return this.model.id;
-  }
   public set idOfStoryDivisionsRelatedTo(v) {
     this.model.idOfStoryDivisionsRelatedTo = v;
     this.updateFile();
@@ -27,11 +14,8 @@ class MindMapModel {
   }
 
   constructor(mindMapObject: IMindMapSchema) {
+    super();
     this.model = mindMapObject;
-  }
-
-  private updateFile() {
-    writeFileSync(this.filePath, JSON.stringify(this.model));
   }
 }
 
