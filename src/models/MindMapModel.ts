@@ -1,21 +1,17 @@
+import SchemaField from '../decorators/SchemaField';
 import IMindMapSchema from '../schema/IMindMapSchema';
 import AbstractModel from './AbstractModel';
 
 class MindMapModel extends AbstractModel<IMindMapSchema> {
-  protected readonly EXT: string = 'mmap';
-  protected readonly model: IMindMapSchema;
+  // protected readonly EXT: string = 'mmap';
 
-  public set idOfStoryDivisionsRelatedTo(v) {
-    this.model.idOfStoryDivisionsRelatedTo = v;
-    this.updateFile();
-  }
-  public get idOfStoryDivisionsRelatedTo(): number[] {
-    return this.model.idOfStoryDivisionsRelatedTo;
-  }
+  @SchemaField
+  idOfStoryDivisionsRelatedTo!: number[];
 
   constructor(mindMapObject: IMindMapSchema) {
-    super();
-    this.model = mindMapObject;
+    super('mmap', mindMapObject);
+    this.idOfStoryDivisionsRelatedTo =
+      mindMapObject.idOfStoryDivisionsRelatedTo;
   }
 }
 

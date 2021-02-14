@@ -1,21 +1,27 @@
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { __PROJ_NAME } from '..';
+import SchemaField from '../decorators/SchemaField';
 import ISchema from '../schema/IModelSchema';
 
 abstract class AbstractModel<Schema extends ISchema> {
-  protected abstract readonly EXT: string;
-  protected abstract readonly model: Schema;
-  protected get filePath() {
+  private readonly model: Schema = {} as Schema;
+  private readonly EXT: string;
+
+  private get filePath() {
     return join(__PROJ_NAME, `${this.id}.${this.EXT}`);
   }
 
-  public set id(v) {
-    this.model.id = v;
-    this.updateFile();
-  }
-  public get id() {
-    return this.model.id;
+  @SchemaField
+  id: number;
+  /**
+   * 
+   * @param ext Extension for file that serialized data to store in
+   * @param obj The object that contains the data for the specified Schema
+   */
+  constructor(ext: string, obj: Schema) {
+    this.EXT = ext;
+    this.id = obj.id;
   }
 
   protected updateFile() {

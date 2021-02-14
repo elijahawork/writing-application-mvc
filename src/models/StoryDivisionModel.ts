@@ -1,35 +1,20 @@
+import SchemaField from '../decorators/SchemaField';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import AbstractModel from './AbstractModel';
 
 class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
-  protected EXT: string = 'stdv';
-  protected model: IStoryDivisionSchema;
-
-  public set parentId(v) {
-    this.model.parentId = v;
-    this.updateFile();
-  }
-  public set label(v) {
-    this.model.label = v;
-    this.updateFile();
-  }
-  public set content(v) {
-    this.model.content = v;
-    this.updateFile();
-  }
-  public get parentId() {
-    return this.model.parentId;
-  }
-  public get label() {
-    return this.model.label;
-  }
-  public get content() {
-    return this.model.content;
-  }
+  @SchemaField
+  parentId: number;
+  @SchemaField
+  label: string;
+  @SchemaField
+  content: string;
 
   constructor(storyDivisionObject: IStoryDivisionSchema) {
-    super();
-    this.model = storyDivisionObject;
+    super('stdv', storyDivisionObject);
+    this.parentId = storyDivisionObject.parentId;
+    this.label = storyDivisionObject.label;
+    this.content = storyDivisionObject.content;
   }
 }
 
