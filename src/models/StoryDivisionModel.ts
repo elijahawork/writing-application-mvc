@@ -2,7 +2,7 @@ import SchemaField from '../decorators/SchemaField';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import AbstractModel from './AbstractModel';
 
-class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
+class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   public static readonly FILE_EXTENSION_NAME = 'stdv';
   
   @SchemaField
@@ -13,17 +13,17 @@ class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
   content: string;
 
   constructor(storyDivisionSchema: IStoryDivisionSchema) {
-    super(StoryDivisonModel.FILE_EXTENSION_NAME, storyDivisionSchema);
+    super(StoryDivisionModel.FILE_EXTENSION_NAME, storyDivisionSchema);
     this.parentId = storyDivisionSchema.parentId;
     this.label = storyDivisionSchema.label;
     this.content = storyDivisionSchema.content;
   }
 
-  public static parse(content: string): StoryDivisonModel {
+  public static parse(content: string): StoryDivisionModel {
     const schema = JSON.parse(content) as IStoryDivisionSchema;
-    const model = new StoryDivisonModel(schema);
+    const model = new StoryDivisionModel(schema);
     return model;
   }
 }
 
-export default StoryDivisonModel;
+export default StoryDivisionModel;
