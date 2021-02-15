@@ -4,7 +4,7 @@ import AbstractModel from './AbstractModel';
 
 class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   public static readonly FILE_EXTENSION_NAME = 'stdv';
-  
+
   @SchemaField
   parentId: number;
   @SchemaField

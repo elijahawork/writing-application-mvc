@@ -15,7 +15,7 @@ abstract class AbstractModel<Schema extends ISchema> {
   @SchemaField
   id: number;
   /**
-   * 
+   *
    * @param ext Extension for file that serialized data to store in
    * @param obj The object that contains the data for the specified Schema
    */
