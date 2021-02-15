@@ -3,6 +3,8 @@ import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import AbstractModel from './AbstractModel';
 
 class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
+  public static readonly FILE_EXTENSION_NAME = 'stdv';
+  
   @SchemaField
   parentId: number;
   @SchemaField
@@ -10,11 +12,17 @@ class StoryDivisonModel extends AbstractModel<IStoryDivisionSchema> {
   @SchemaField
   content: string;
 
-  constructor(storyDivisionObject: IStoryDivisionSchema) {
-    super('stdv', storyDivisionObject);
-    this.parentId = storyDivisionObject.parentId;
-    this.label = storyDivisionObject.label;
-    this.content = storyDivisionObject.content;
+  constructor(storyDivisionSchema: IStoryDivisionSchema) {
+    super(StoryDivisonModel.FILE_EXTENSION_NAME, storyDivisionSchema);
+    this.parentId = storyDivisionSchema.parentId;
+    this.label = storyDivisionSchema.label;
+    this.content = storyDivisionSchema.content;
+  }
+
+  public static parse(content: string): StoryDivisonModel {
+    const schema = JSON.parse(content) as IStoryDivisionSchema;
+    const model = new StoryDivisonModel(schema);
+    return model;
   }
 }
 
