@@ -1,4 +1,4 @@
-import { writeFile, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { __LOG_PATH } from '..';
 
@@ -25,15 +25,21 @@ class Log {
     return new Log(logName);
   }
   public print(msg: string) {
-    this.logContent += `MSG: ${msg}\n`;
+    const prefixedMsg = `MSG: ${msg}\n`; 
+    console.log(prefixedMsg);
+    this.logContent += prefixedMsg;
     this.updateLog();
   }
   public warn(msg: string) {
-    this.logContent += `WARNING: ${msg}\n`;
+    const prefixedMsg = `WARNING: ${msg}\n`; 
+    console.log(prefixedMsg);
+    this.logContent += prefixedMsg;
     this.updateLog();
   }
   public error(msg: string) {
-    this.logContent += `ERROR: ${msg}\n`;
+    const prefixedMsg = `ERROR: ${msg}\n`; 
+    console.log(prefixedMsg);
+    this.logContent += prefixedMsg;
     this.updateLog();
   }
 }
