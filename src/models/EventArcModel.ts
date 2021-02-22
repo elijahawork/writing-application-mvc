@@ -10,7 +10,8 @@ class EventArcModel extends AbstractModel<IEventArcSchema> {
 
   constructor(eventArcSchema: IEventArcSchema) {
     super(EventArcModel.FILE_EXTENSION_NAME, eventArcSchema);
-    this.eventImportanceMap = this.eventImportanceMap;
+    this.eventImportanceMap = eventArcSchema.eventImportanceMap;
+    
   }
 
   public static parse(content: string): EventArcModel {
