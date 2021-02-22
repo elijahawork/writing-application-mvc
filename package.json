@@ -2,13 +2,13 @@
   "name": "writing-application-mvc",
   "version": "1.0.0",
   "description": "",
-  "main": "./out/electron/main.js",
+  "main": "./out/src/electron/main.js",
   "scripts": {
     "start": "electron ."
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "GNU",
   "devDependencies": {
     "@types/electron": "^1.6.10",
     "@types/node": "^14.14.16",
@@ -16,10 +16,10 @@
     "@types/source-map-support": "^0.5.3",
     "electron": "^11.1.1",
     "source-map-support": "^0.5.19",
-    "typescript": "^4.1.3"
+    "typescript": "^4.1.3",
+    "@types/react-dom": "^17.0.0"
   },
   "dependencies": {
-    "@types/react-dom": "^17.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   }
