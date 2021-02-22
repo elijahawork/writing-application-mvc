@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import EventArcModel from '../../../models/EventArcModel';
-import MindMapModel from '../../../models/MindMapModel';
 
 type Props = {
   eventArc: EventArcModel;
