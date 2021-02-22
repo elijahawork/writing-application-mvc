@@ -1,8 +1,11 @@
 import { readdirSync, readFileSync } from 'fs';
 import { join, parse } from 'path';
+import React from 'react';
+import ReactDOM from 'react-dom';
 import EventArcModel from './models/EventArcModel';
 import MindMapModel from './models/MindMapModel';
 import StoryDivisionModel from './models/StoryDivisionModel';
+import App from './view/App';
 
 export const __PROJ_NAME = join(__dirname, '..', 'protected');
 export const __PROJECT_ROOT_ID = -1;
@@ -78,7 +81,9 @@ export namespace ModelInfo {
   }
 }
 
-function init() {}
+function init() {
+  ReactDOM.render(<App />, document.getElementById('root'));
+}
 function test() {}
 
 export function main() {
