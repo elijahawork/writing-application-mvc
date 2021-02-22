@@ -15,7 +15,10 @@ class Pane3 extends React.Component<Props, State> {
     super(props);
     this.state = { ...props };
   }
+  
   render() {
+    console.log(this.state.eventArcs);
+    
     return (
       <div>
         <h1 className={'side-panel-header'}>MINDMAP</h1>
@@ -23,12 +26,20 @@ class Pane3 extends React.Component<Props, State> {
 
         <h1 className={'side-panel-header'}>TIMELINES</h1>
         <ul>
-          <li>
-            <EventArcMini eventArc={this.state.eventArcs[0]} />
-          </li>
-          <li>
-            <EventArcMini eventArc={this.state.eventArcs[1]} />
-          </li>
+          {this.state.eventArcs[0] ? (
+            <li>
+              <EventArcMini eventArc={this.state.eventArcs[0]} />
+            </li>
+          ) : (
+            <></>
+          )}
+          {this.state.eventArcs[1] ? (
+            <li>
+              <EventArcMini eventArc={this.state.eventArcs[1]} />
+            </li>
+          ) : (
+            <></>
+          )}
         </ul>
       </div>
     );
