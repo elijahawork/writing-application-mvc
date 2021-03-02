@@ -8,7 +8,7 @@ class Pane1 extends React.Component<Props, State> {
     super(props);
   }
   render() {
-    return <></>;
+    return <div className={'pane'}></div>;
   }
 }
 export default Pane1;

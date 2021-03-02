@@ -15,12 +15,10 @@ class Pane3 extends React.Component<Props, State> {
     super(props);
     this.state = { ...props };
   }
-  
+
   render() {
-    console.log(this.state.eventArcs);
-    
     return (
-      <div>
+      <div className={'pane'}>
         <h1 className={'side-panel-header'}>MINDMAP</h1>
         <MindMapMini mindmap={this.state.mindmaps[0]} />
 
