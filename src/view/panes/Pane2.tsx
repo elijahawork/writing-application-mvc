@@ -11,7 +11,7 @@ class Pane2 extends React.Component<Props, State> {
   render() {
     return (
       <div className={'pane'}>
-        <TextEditor />
+        <TextEditor text={'hello, world'} />
       </div>
     );
   }
