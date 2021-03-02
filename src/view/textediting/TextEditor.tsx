@@ -28,7 +28,7 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
     };
     this.handleKey = this.handleKey.bind(this);
   }
-  handleKey(event: KeyboardEvent<HTMLDivElement>) {}
+  handleKey(event: React.KeyboardEvent<HTMLDivElement>) {}
   render() {
     const prefix = this.state.text.substring(0, this.state.caretIndex);
     const char = this.state.text[this.state.caretIndex];
