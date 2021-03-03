@@ -12,9 +12,13 @@ class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   label: string;
   @SchemaField
   content: string;
+  @SchemaField
+  position: number;
 
   public get children() {
-    return [...ModelInfo.storageDivisionRegistry.values()].filter(e => e.parentId == this.id);
+    return [...ModelInfo.storageDivisionRegistry.values()].filter(
+      (e) => e.parentId == this.id
+    );
   }
 
   constructor(storyDivisionSchema: IStoryDivisionSchema) {
@@ -22,6 +26,7 @@ class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
     this.parentId = storyDivisionSchema.parentId;
     this.label = storyDivisionSchema.label;
     this.content = storyDivisionSchema.content;
+    this.position = storyDivisionSchema.position;
   }
 
   public static parse(content: string): StoryDivisionModel {

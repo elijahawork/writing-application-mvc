@@ -5,6 +5,7 @@ interface IStoryDivisionSchema extends ISchema {
   parentId: number;
   label: string;
   content: string;
+  position: number;
 }
 
 export default IStoryDivisionSchema;
