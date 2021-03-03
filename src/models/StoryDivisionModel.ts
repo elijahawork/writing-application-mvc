@@ -1,8 +1,7 @@
+import { ModelInfo } from '..';
 import SchemaField from '../decorators/SchemaField';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import AbstractModel from './AbstractModel';
-
-export const storyDivisions: StoryDivisionModel[] = [];
 
 class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   public static readonly FILE_EXTENSION_NAME = 'stdv';
@@ -15,7 +14,7 @@ class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   content: string;
 
   public get children() {
-    return storyDivisions.filter(e => e.parentId == this.id);
+    return [...ModelInfo.storageDivisionIDMap.values()].filter(e => e.parentId == this.id);
   }
 
   constructor(storyDivisionSchema: IStoryDivisionSchema) {
@@ -23,8 +22,6 @@ class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
     this.parentId = storyDivisionSchema.parentId;
     this.label = storyDivisionSchema.label;
     this.content = storyDivisionSchema.content;
-
-    storyDivisions.push(this);
   }
 
   public static parse(content: string): StoryDivisionModel {
