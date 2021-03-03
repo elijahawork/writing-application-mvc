@@ -35,6 +35,7 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
         case 'v': {
           this.paste();
         }
+          break;
       }
     } else {
       switch (key) {
