@@ -5,7 +5,7 @@ import EventArcMini from './minipanes/EventArcMini';
 import MindMapMini from './minipanes/MindMapMini';
 
 type Props = {
-  mindmaps: MindMapModel[];
+  mindMaps: MindMapModel[];
   eventArcs: EventArcModel[];
 };
 type State = Props;
@@ -20,7 +20,7 @@ class Pane3 extends React.Component<Props, State> {
     return (
       <div className={'pane'}>
         <h1 className={'side-panel-header'}>MINDMAP</h1>
-        <MindMapMini mindmap={this.state.mindmaps[0]} />
+        <MindMapMini mindMap={this.state.mindMaps[0]} />
 
         <h1 className={'side-panel-header'}>TIMELINES</h1>
         <ul>
