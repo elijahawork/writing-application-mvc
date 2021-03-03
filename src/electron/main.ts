@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, ipcRenderer, Menu } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import * as tsElectronSourceMap from 'source-map-support';
 
