@@ -1,4 +1,3 @@
-import { writeFileSync } from 'fs';
 import { join } from 'path';
 import { __LOG_PATH } from '..';
 
