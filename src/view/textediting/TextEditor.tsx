@@ -6,10 +6,6 @@ type TextEditorProps = {
 };
 type TextEditorState = {
   text: string;
-  // caret index represents the point before the char at the number
-  // i.e. charIndex = 7, would represent the character before 7
-  // this is so that the caret may be behind the cursor and to add functionality
-  // for the beginning of text where charIndex = 0
   caretIndex: number;
 } & TextEditorProps;
 
@@ -34,11 +30,10 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
   }
   private handleKey(event: React.KeyboardEvent<HTMLDivElement>) {
     const key = event.key;
+    event.preventDefault();
     if (event.ctrlKey) {
       switch (key) {
         case 'v': {
-          console.log('pasting');
-          
           this.paste();
         }
       }
@@ -89,14 +84,38 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
     }));
     this.moveCaretForward();
   }
-  private moveCaretForward() {
-    this.setState((state) => ({ caretIndex: state.caretIndex + 1 }));
+  private moveCaretForward(index = 1) {
+    this.setState((state) => {
+      const newCaretIndex = state.caretIndex + index;
+      if (newCaretIndex > this.state.text.length) {
+        return {
+          caretIndex: state.text.length,
+        };
+      } else {
+        return {
+          caretIndex: newCaretIndex,
+        };
+      }
+    });
   }
-  private moveCaretBackward() {
-    this.setState((state) => ({ caretIndex: state.caretIndex - 1 }));
+  private moveCaretBackward(index = 1) {
+    this.setState((state) => {
+      const newCaretIndex = state.caretIndex - index;
+      if (newCaretIndex < -1) {
+        return {
+          caretIndex: -1,
+        };
+      } else {
+        return {
+          caretIndex: newCaretIndex,
+        };
+      }
+    });
   }
   private paste() {
-    this.addText(clipboard.readHTML('clipboard'));
+    const text = clipboard.readText('clipboard');
+    this.addText(text);
+    this.moveCaretForward(text.length);
   }
   render() {
     const prefix = this.state.text.substring(0, this.state.caretIndex);
