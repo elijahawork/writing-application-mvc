@@ -24,7 +24,7 @@ export namespace ModelInfo {
       const parsedFileName = parse(fileName);
       const absoluteFilePath = join(__PROJ_NAME, fileName);
 
-      switch (parsedFileName.ext) {
+      switch (parsedFileName.ext.substring(1)) {
         case StoryDivisionModel.FILE_EXTENSION_NAME:
           {
             addStoryDivisionFromAbsolutePath(absoluteFilePath);
@@ -88,6 +88,18 @@ export namespace ModelInfo {
 }
 
 function init() {
+  // const manuscript = new StoryDivisionModel({
+  //   content: '',
+  //   id: -1,
+  //   label: 'Manuscript',
+  //   parentId: -2,
+  // })
+  new StoryDivisionModel({
+    content: '',
+    id: 1,
+    label: 'Act I',
+    parentId: -1,
+  });
   ModelInfo.getAllStorageDivision();
   ReactDOM.render(<App />, document.getElementById('root'));
 }
