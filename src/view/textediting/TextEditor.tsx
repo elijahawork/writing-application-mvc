@@ -13,8 +13,7 @@ const TEXT_EDITOR_STYLE: React.CSSProperties = {
   width: '100%',
   height: '50%',
   border: '1px solid black',
-  whiteSpace: 'pre',
-  overflow: 'auto',
+  whiteSpace: 'pre-wrap',
 };
 
 class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
@@ -129,7 +128,14 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
         onKeyDown={this.handleKey}
       >
         {prefix}
-        <span style={{ background: 'black', color: 'white' }}>{char}</span>
+        <span
+          style={{
+            border: '1px solid black',
+            borderStyle: 'none none none solid',
+          }}
+        >
+          {char}
+        </span>
         {suffix}
       </div>
     );
