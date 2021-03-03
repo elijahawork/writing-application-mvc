@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { join, parse } from 'path';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import Log from './log/Log';
 import EventArcModel from './models/EventArcModel';
 import MindMapModel from './models/MindMapModel';
 import StoryDivisionModel from './models/StoryDivisionModel';
@@ -10,7 +11,7 @@ import App from './view/App';
 export const __PROJ_NAME = join(__dirname, '..', 'protected');
 export const __PROJECT_ROOT_ID = -1;
 export const __LOG_PATH = join(__dirname, '..', 'logs');
-// export const log = Log.create();
+export const log = Log.create();
 
 export namespace ModelInfo {
   export const storageDivisionRegistry = new Map<number, StoryDivisionModel>();
@@ -94,12 +95,6 @@ function init() {
   //   label: 'Manuscript',
   //   parentId: -2,
   // })
-  new StoryDivisionModel({
-    content: '',
-    id: 1,
-    label: 'Act I',
-    parentId: -1,
-  });
   ModelInfo.getAllStorageDivision();
   ReactDOM.render(<App />, document.getElementById('root'));
 }

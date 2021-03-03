@@ -16,7 +16,7 @@ class Log {
   }
   
   private updateLog() {
-    writeFileSync(this.filePath, this.logContent);
+    // writeFileSync(this.filePath, this.logContent);
   }
   
   public static create() {
@@ -32,13 +32,13 @@ class Log {
   }
   public warn(msg: string) {
     const prefixedMsg = `WARNING: ${msg}\n`; 
-    console.log(prefixedMsg);
+    console.warn(prefixedMsg);
     this.logContent += prefixedMsg;
     this.updateLog();
   }
   public error(msg: string) {
     const prefixedMsg = `ERROR: ${msg}\n`; 
-    console.log(prefixedMsg);
+    console.error(prefixedMsg);
     this.logContent += prefixedMsg;
     this.updateLog();
   }
