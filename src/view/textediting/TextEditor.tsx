@@ -1,3 +1,4 @@
+import { clipboard } from 'electron/common';
 import React from 'react';
 
 type TextEditorProps = {
@@ -17,6 +18,7 @@ const TEXT_EDITOR_STYLE: React.CSSProperties = {
   height: '50%',
   border: '1px solid black',
   whiteSpace: 'pre',
+  overflow: 'auto',
 };
 
 class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
@@ -27,8 +29,75 @@ class TextEditor extends React.Component<TextEditorProps, TextEditorState> {
       caretIndex: 0,
     };
     this.handleKey = this.handleKey.bind(this);
+    this.moveCaretBackward = this.moveCaretBackward.bind(this);
+    this.moveCaretForward = this.moveCaretForward.bind(this);
   }
-  handleKey(event: React.KeyboardEvent<HTMLDivElement>) {}
+  private handleKey(event: React.KeyboardEvent<HTMLDivElement>) {
+    const key = event.key;
+    if (event.ctrlKey) {
+      switch (key) {
+        case 'v': {
+          console.log('pasting');
+          
+          this.paste();
+        }
+      }
+    } else {
+      switch (key) {
+        case 'ArrowRight':
+          {
+            this.moveCaretForward();
+          }
+          break;
+        case 'ArrowLeft':
+          {
+            this.moveCaretBackward();
+          }
+          break;
+        case 'Backspace':
+          {
+            this.deleteChar();
+          }
+          break;
+        case 'Enter':
+          {
+            this.addText('\n');
+          }
+          break;
+        default: {
+          if (key.length === 1) {
+            this.addText(key);
+          }
+        }
+      }
+    }
+  }
+  private deleteChar() {
+    this.setState((state) => ({
+      text:
+        state.text.substring(0, state.caretIndex - 1) +
+        state.text.substring(state.caretIndex),
+    }));
+    this.moveCaretBackward();
+  }
+  private addText(ch: string) {
+    this.setState((state) => ({
+      text:
+        state.text.substring(0, state.caretIndex) +
+        ch +
+        state.text.substring(state.caretIndex),
+    }));
+    this.moveCaretForward();
+  }
+  private moveCaretForward() {
+    this.setState((state) => ({ caretIndex: state.caretIndex + 1 }));
+  }
+  private moveCaretBackward() {
+    this.setState((state) => ({ caretIndex: state.caretIndex - 1 }));
+  }
+  private paste() {
+    this.addText(clipboard.readHTML('clipboard'));
+  }
   render() {
     const prefix = this.state.text.substring(0, this.state.caretIndex);
     const char = this.state.text[this.state.caretIndex];
