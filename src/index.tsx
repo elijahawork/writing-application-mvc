@@ -13,11 +13,11 @@ export const __LOG_PATH = join(__dirname, '..', 'logs');
 // export const log = Log.create();
 
 export namespace ModelInfo {
-  export const storageDivisionIDMap = new Map<number, StoryDivisionModel>();
-  export const mindMapIDMap = new Map<number, MindMapModel>();
-  export const eventArcIDMap = new Map<number, EventArcModel>();
+  export const storageDivisionRegistry = new Map<number, StoryDivisionModel>();
+  export const mindMapRegistry = new Map<number, MindMapModel>();
+  export const eventArcRegistry = new Map<number, EventArcModel>();
 
-  export function getAllStorageDivision() {
+  export function getAllStorageDivision(): void {
     const fileNames = readdirSync(__PROJ_NAME, 'utf8');
 
     for (const fileName of fileNames) {
@@ -49,31 +49,37 @@ export namespace ModelInfo {
     }
   }
 
-  function addStoryDivisionFromAbsolutePath(absoluteFilePath: string) {
+  function addStoryDivisionFromAbsolutePath(absoluteFilePath: string): void {
     const model = getStoryDivisionModelFromAbsolutePath(absoluteFilePath);
-    storageDivisionIDMap.set(model.id, model);
+    storageDivisionRegistry.set(model.id, model);
   }
-  function addEventArcFromAbsolutePath(absoluteFilePath: string) {
+  function addEventArcFromAbsolutePath(absoluteFilePath: string): void {
     const model = getEventArcModelFromAbsolutePath(absoluteFilePath);
-    storageDivisionIDMap.set(model.id, model);
+    eventArcRegistry.set(model.id, model);
   }
-  function addMindMapFromAbsolutePath(absoluteFilePath: string) {
+  function addMindMapFromAbsolutePath(absoluteFilePath: string): void {
     const model = getMindMapModelFromAbsolutePath(absoluteFilePath);
-    storageDivisionIDMap.set(model.id, model);
+    mindMapRegistry.set(model.id, model);
   }
-  function getStoryDivisionModelFromAbsolutePath(absoluteFilePath: string) {
+  function getStoryDivisionModelFromAbsolutePath(
+    absoluteFilePath: string
+  ): StoryDivisionModel {
     const schemaJSONString = getSchemaJSONStringFromPath(absoluteFilePath);
     const model = StoryDivisionModel.parse(schemaJSONString);
     return model;
   }
-  function getEventArcModelFromAbsolutePath(absoluteFilePath: string) {
+  function getEventArcModelFromAbsolutePath(
+    absoluteFilePath: string
+  ): EventArcModel {
     const schemaJSONString = getSchemaJSONStringFromPath(absoluteFilePath);
-    const model = StoryDivisionModel.parse(schemaJSONString);
+    const model = EventArcModel.parse(schemaJSONString);
     return model;
   }
-  function getMindMapModelFromAbsolutePath(absoluteFilePath: string) {
+  function getMindMapModelFromAbsolutePath(
+    absoluteFilePath: string
+  ): MindMapModel {
     const schemaJSONString = getSchemaJSONStringFromPath(absoluteFilePath);
-    const model = StoryDivisionModel.parse(schemaJSONString);
+    const model = MindMapModel.parse(schemaJSONString);
     return model;
   }
   function getSchemaJSONStringFromPath(absoluteFilePath: string) {
@@ -82,6 +88,7 @@ export namespace ModelInfo {
 }
 
 function init() {
+  ModelInfo.getAllStorageDivision();
   ReactDOM.render(<App />, document.getElementById('root'));
 }
 function test() {}
