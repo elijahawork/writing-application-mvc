@@ -14,7 +14,7 @@ class StoryDivisionModel extends AbstractModel<IStoryDivisionSchema> {
   content: string;
 
   public get children() {
-    return [...ModelInfo.storageDivisionIDMap.values()].filter(e => e.parentId == this.id);
+    return [...ModelInfo.storageDivisionRegistry.values()].filter(e => e.parentId == this.id);
   }
 
   constructor(storyDivisionSchema: IStoryDivisionSchema) {
