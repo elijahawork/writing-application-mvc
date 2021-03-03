@@ -2,7 +2,7 @@ import React from 'react';
 import MindMapModel from '../../../models/MindMapModel';
 
 type Props = {
-  mindmap: MindMapModel;
+  mindMap: MindMapModel;
 };
 type State = Props;
 
