@@ -94,6 +94,7 @@ function init() {
   //   id: -1,
   //   label: 'Manuscript',
   //   parentId: -2,
+  //   position: 0
   // })
   ModelInfo.getAllStorageDivision();
   ReactDOM.render(<App />, document.getElementById('root'));
