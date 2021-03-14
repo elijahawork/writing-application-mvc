@@ -3,8 +3,16 @@ import { join } from 'path';
 import React from 'react';
 import reactDOM from 'react-dom';
 import API from './api/API';
+import IProjectSchema from './schema/IProjectSchema';
 import App from './view/App';
 
+const ROOT_ELEMENT = document.getElementById('root')!;
+
+// ensure that the element has actually loaded
+console.assert(ROOT_ELEMENT);
+
+// this is a development directory only
+// this is used for testing whether or not the files actually work
 const __PROJ_NAME = join(__dirname, '..', 'protected');
 
 (async () => {
@@ -21,5 +29,22 @@ const __PROJ_NAME = join(__dirname, '..', 'protected');
     if (pathDoesNotExist) {
       await promises.mkdir(__PROJ_NAME);
     }
+
+    const [project, setProject] = await API.newProjectFS(
+      join(__PROJ_NAME, 'Project.aesop'),
+      {
+        eventArcs: [],
+        id: 7,
+        label: 'Project',
+        mindMaps: [],
+        storyDivisions: [],
+      }
+    );
+
+    loadProjectIntoView(project);
   });
 })();
+
+function loadProjectIntoView(project: IProjectSchema) {
+  reactDOM.render(<App projectSettings={project} />, ROOT_ELEMENT);
+}
