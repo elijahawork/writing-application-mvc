@@ -3,7 +3,7 @@ import IMindMapSchema from './IMindMapSchema';
 import IModelSchema from './IModelSchema';
 import IStoryDivisionSchema from './IStoryDivisionSchema';
 
-const projectKeys = ['label', 'eventArcs', 'mindMaps', 'storyDivisions'];
+const projectKeys = ['id', 'label', 'eventArcs', 'mindMaps', 'storyDivisions'];
 
 interface IProjectSchema extends IModelSchema {
   // the name of the project that shows up to the user
@@ -15,7 +15,7 @@ interface IProjectSchema extends IModelSchema {
 }
 
 export function isIProjectSchema(schema: any) {
-  return Object.keys(schema).every((key) => key in projectKeys);
+  return Object.keys(schema).every((key) => projectKeys.includes(key));
 }
 
 export default IProjectSchema;
