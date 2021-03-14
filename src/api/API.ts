@@ -59,13 +59,15 @@ namespace API {
    */
   async function updateProjectFS<K extends keyof IProjectSchema>(
     newProjectEntries: Pick<IProjectSchema, K>
-  ): Promise<void> {
+  ): Promise<IProjectSchema> {
     console.assert(project);
+    
     for (const key in newProjectEntries) {
       project![key] = newProjectEntries[key];
     }
 
-    writeProjectFS(project!);
+    await writeProjectFS(project!);
+    return project!;
   }
 
   /**
