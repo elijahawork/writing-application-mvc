@@ -1,5 +1,9 @@
 import { access, promises } from 'fs';
 import { join } from 'path';
+import React from 'react';
+import reactDOM from 'react-dom';
+import API from './api/API';
+import App from './view/App';
 
 const __PROJ_NAME = join(__dirname, '..', 'protected');
 
@@ -13,9 +17,9 @@ const __PROJ_NAME = join(__dirname, '..', 'protected');
   // and that means that because no directory exists
   // it can be made safely
   // and then it makes the directory
-  access(__PROJ_NAME, (pathDoesNotExist) => {
+  access(__PROJ_NAME, async (pathDoesNotExist) => {
     if (pathDoesNotExist) {
-      promises.mkdir(__PROJ_NAME);
+      await promises.mkdir(__PROJ_NAME);
     }
   });
 })();
