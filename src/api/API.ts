@@ -1,9 +1,8 @@
 import { PathLike, promises } from 'fs';
 import IProjectSchema, { isIProjectSchema } from '../schema/IProjectSchema';
+import { Nullable } from '../types/CustomUtilTypes';
 
 type EncryptedString = string;
-
-type Nullable<T> = T | null;
 
 let fileSystemPath: Nullable<PathLike> = null;
 let project: Nullable<IProjectSchema> = null;
