@@ -1,5 +1,4 @@
-import { PathLike, readFile, writeFile, writeFileSync } from 'fs';
-import { promisify } from 'util';
+import { PathLike, promises } from 'fs';
 import IProjectSchema, { isIProjectSchema } from '../schema/IProjectSchema';
 
 type EncryptedString = string;
@@ -52,9 +51,7 @@ namespace API {
   async function writeProjectFS(project: IProjectSchema): Promise<void> {
     console.assert(usingFS());
 
-    writeFile(fileSystemPath!, JSON.stringify(project), (err) => {
-      if (err) throw err;
-    });
+    promises.writeFile(fileSystemPath!, JSON.stringify(project));
   }
   /**
    *
@@ -90,7 +87,7 @@ namespace API {
   async function getProjectJSON(): Promise<string> {
     console.assert(usingFS());
 
-    return promisify(readFile)(fileSystemPath!, 'utf-8');
+    return promises.readFile(fileSystemPath!, 'utf-8');
   }
   /**
    *
