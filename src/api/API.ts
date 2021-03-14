@@ -1,54 +1,81 @@
-import { PathLike } from 'fs';
-import { readFile, writeFile } from 'fs/promises';
+import { PathLike, readFile, writeFile, writeFileSync } from 'fs';
+import { promisify } from 'util';
 import IProjectSchema, { isIProjectSchema } from '../schema/IProjectSchema';
 
 type EncryptedString = string;
-type ProjectId = number;
-
-type ServerUserAuth = {
-  userId: number;
-  userPassword: EncryptedString;
-};
-
-// this determines what type of communication the computer will be doing to modify information
-// i.e. whether it will be modifying online or using the inbuilt os file system.
-type CommunicationType = 'web' | 'fs';
 
 type Nullable<T> = T | null;
 
-/**
- * @deprecated
- */
-let userAuthentication: Nullable<ServerUserAuth> = null;
-
 let fileSystemPath: Nullable<PathLike> = null;
+let project: Nullable<IProjectSchema> = null;
 
 namespace API {
   /**
-   *
-   * @param path is the path to the project to open
-   * @returns a tuple of the project schema and a function to set the project value
+   * @description This is a tuple type that returns the initial project as a view only object and a method to set the value
    */
-  async function openProjectFS(
-    path: PathLike
-  ): Promise<
-    [project: IProjectSchema, setProject: (project: IProjectSchema) => void]
-  > {
+  type ProjectTupleModifier = Promise<
+    [project: Readonly<IProjectSchema>, setProject: typeof updateProjectFS]
+  >;
+  /**
+   *
+   * @param path is the path to create the project file
+   * @param project is the project as a javascript object
+   * @returns the project and a method to set the value as a tuple
+   */
+  export async function newProjectFS(
+    path: PathLike,
+    project: IProjectSchema
+  ): ProjectTupleModifier {
     useFSPath(path);
 
-    const project = parseProjectJSON(await getProjectJSON());
+    await writeProjectFS(project);
 
-    return [project, returnProjectFS];
+    return await openProjectFS(path);
   }
   /**
-   * 
+   *
+   * @param path is the path to the project to open
+   * @returns the project and a method to set the value as a tuple
+   */
+  export async function openProjectFS(path: PathLike): ProjectTupleModifier {
+    useFSPath(path);
+
+    const projectJSON = await getProjectJSON();
+    project = parseProjectJSON(projectJSON);
+
+    return [project, updateProjectFS];
+  }
+  /**
+   *
    * @param project is the project schema to write
    */
-  async function returnProjectFS(project: IProjectSchema): Promise<void> {
+  async function writeProjectFS(project: IProjectSchema): Promise<void> {
     console.assert(usingFS());
 
-    return writeFile(fileSystemPath!, JSON.stringify(project));
+    writeFile(fileSystemPath!, JSON.stringify(project), (err) => {
+      if (err) throw err;
+    });
   }
+  /**
+   *
+   * @param newProjectEntries A JS object with new entries to replace the past ones
+   */
+  async function updateProjectFS<K extends keyof IProjectSchema>(
+    newProjectEntries: Pick<IProjectSchema, K>
+  ): Promise<void> {
+    console.assert(project);
+    for (const key in newProjectEntries) {
+      project![key] = newProjectEntries[key];
+    }
+
+    writeProjectFS(project!);
+  }
+
+  /**
+   *
+   * @param projectJSON is a serialized json project schema
+   * @returns the deserialized form of the project schema as a javascript object
+   */
   function parseProjectJSON(projectJSON: string): IProjectSchema {
     const parsedProjectSchema = JSON.parse(projectJSON);
 
@@ -56,10 +83,14 @@ namespace API {
 
     return parsedProjectSchema as IProjectSchema;
   }
+  /**
+   *
+   * @returns the json at the specified fs path
+   */
   async function getProjectJSON(): Promise<string> {
     console.assert(usingFS());
 
-    return readFile(fileSystemPath!, 'utf-8');
+    return promisify(readFile)(fileSystemPath!, 'utf-8');
   }
   /**
    *
@@ -68,6 +99,10 @@ namespace API {
   function useFSPath(path: PathLike) {
     fileSystemPath = path;
   }
+  /**
+   *
+   * @returns a boolean representing whether the file system is what the api is using
+   */
   function usingFS() {
     return typeof fileSystemPath === 'string';
   }
