@@ -9,7 +9,7 @@ let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 
 namespace Project {
   /**
-   * 
+   *
    * @returns the root story division registry
    * This function *should* return whichever story division contains every child but is not contained itself
    * but that would take a moment to program and i'm lazy so rn i'm just going to make it so a root
@@ -17,6 +17,7 @@ namespace Project {
    * This should be patched in a later update
    */
   export function getRootStoryDivision(): IStoryDivisionSchema {
+    console.assert(storyDivisionRegistry[-1], 'There is no root for project');
     return storyDivisionRegistry[-1];
   }
   /**
