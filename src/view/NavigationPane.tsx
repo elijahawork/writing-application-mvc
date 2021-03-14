@@ -17,7 +17,6 @@ class NavigationPane extends React.Component<
   constructor(props: NavigationPaneProps) {
     super(props);
     this.state = {};
-    console.log(this.props.setAppState);
   }
   
   render() {
