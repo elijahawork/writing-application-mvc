@@ -1,5 +1,5 @@
 import { PathLike } from 'fs';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import IProjectSchema, { isIProjectSchema } from '../schema/IProjectSchema';
 
 type EncryptedString = string;
@@ -24,9 +24,30 @@ let userAuthentication: Nullable<ServerUserAuth> = null;
 let fileSystemPath: Nullable<PathLike> = null;
 
 namespace API {
-  async function openProjectFS(path: PathLike): Promise<IProjectSchema> {
+  /**
+   *
+   * @param path is the path to the project to open
+   * @returns a tuple of the project schema and a function to set the project value
+   */
+  async function openProjectFS(
+    path: PathLike
+  ): Promise<
+    [project: IProjectSchema, setProject: (project: IProjectSchema) => void]
+  > {
     useFSPath(path);
-    return parseProjectJSON(await getProjectJSON());
+
+    const project = parseProjectJSON(await getProjectJSON());
+
+    return [project, returnProjectFS];
+  }
+  /**
+   * 
+   * @param project is the project schema to write
+   */
+  async function returnProjectFS(project: IProjectSchema): Promise<void> {
+    console.assert(usingFS());
+
+    return writeFile(fileSystemPath!, JSON.stringify(project));
   }
   function parseProjectJSON(projectJSON: string): IProjectSchema {
     const parsedProjectSchema = JSON.parse(projectJSON);
@@ -36,7 +57,7 @@ namespace API {
     return parsedProjectSchema as IProjectSchema;
   }
   async function getProjectJSON(): Promise<string> {
-    console.assert(typeof fileSystemPath === 'string');
+    console.assert(usingFS());
 
     return readFile(fileSystemPath!, 'utf-8');
   }
@@ -46,6 +67,9 @@ namespace API {
    */
   function useFSPath(path: PathLike) {
     fileSystemPath = path;
+  }
+  function usingFS() {
+    return typeof fileSystemPath === 'string';
   }
 }
 export default API;
