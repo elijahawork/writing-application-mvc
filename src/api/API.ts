@@ -11,7 +11,7 @@ namespace API {
   /**
    * @description This is a tuple type that returns the initial project as a view only object and a method to set the value
    */
-  type ProjectTupleModifier = Promise<
+  export type ProjectTupleModifier = Promise<
     [project: Readonly<IProjectSchema>, setProject: typeof updateProjectFS]
   >;
   /**
