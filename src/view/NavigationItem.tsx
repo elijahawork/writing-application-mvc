@@ -14,16 +14,16 @@ class NavigationItem extends React.Component<
   NavigationItemProps,
   NavigationItemState
 > {
-  
   constructor(props: NavigationItemProps) {
     super(props);
     this.state = {};
   }
-  
+
   render() {
     return (
       <li className={'navigation-item'}>
         <ul>
+          {this.props.storyDivision.label}
           {Project.getAllImmediateChildren(this.props.storyDivision).map(
             (childDivision, key) => (
               <NavigationItem
