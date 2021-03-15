@@ -1,37 +1,66 @@
 import React, { createRef } from 'react';
+import { inspect } from 'util';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import { Nullable } from '../types/CustomUtilTypes';
 import Project from '../util/Project';
 import { GlobalAppState, GlobalSetAppState } from './App';
+import {
+  globalNavigationPaneState as GlobalNavigationPaneState,
+  GlobalSetNavigationPaneState,
+} from './NavigationPane';
 
 const navigationList: Record<number, NavigationItem> = {};
 
-/**
- * !!! Note to self. Attempt to use an actual nesting system with children, etc. and have that be a separate state from the actual children that are represented in the JSON
- */
+let currentlyMoving: Nullable<NavigationItem> = null;
+
+export type StoryDivisionWChildren = {
+  // this is a reference to the schema so that when the schema is updated, so is the
+  // information in this object
+  storyDivisionPointer: IStoryDivisionSchema;
+  children: StoryDivisionWChildren[];
+};
 
 type NavigationItemProps = {
-  setState: GlobalSetAppState;
-  appState: GlobalAppState;
-  storyDivision: IStoryDivisionSchema;
+  setState: GlobalSetNavigationPaneState;
+  appState: GlobalNavigationPaneState;
+  storyDivisionStructure: StoryDivisionWChildren;
 };
 type NavigationItemState = {
-  storyDivision: IStoryDivisionSchema;
+  storyDivisionWChildren: StoryDivisionWChildren;
 };
 
 class NavigationItem extends React.Component<
   NavigationItemProps,
   NavigationItemState
 > {
-  constructor(props: NavigationItemProps) {
-    super(props);
-    this.state = { storyDivision: props.storyDivision };
-    navigationList[this.props.storyDivision.id] = this;
-    console.log(navigationList);
-  }
-
+  buttonRef = createRef<HTMLButtonElement>();
   html = createRef<HTMLLIElement>();
 
+  constructor(props: NavigationItemProps) {
+    super(props);
+
+    this.state = {
+      storyDivisionWChildren: props.storyDivisionStructure,
+    };
+
+    // register?
+    this.register();
+
+    this.dragOverHandler = this.dragOverHandler.bind(this);
+    this.dropHandler = this.dropHandler.bind(this);
+    this.dragHandler = this.dragHandler.bind(this);
+  }
+
+  private register() {
+    const thisId = this.state.storyDivisionWChildren.storyDivisionPointer.id;
+
+    // ensure the registered item does not already exist
+    console.assert(!navigationList[thisId]);
+
+    navigationList[thisId] = this;
+  }
+
+  // this allows the drop event to take place
   dragOverHandler(event: React.DragEvent) {
     event.stopPropagation();
     event.preventDefault();
@@ -40,47 +69,50 @@ class NavigationItem extends React.Component<
   dropHandler(event: React.DragEvent) {
     event.stopPropagation();
 
-    const nearestNavigationItem = this.getNearestNavigationItem(
-      event.clientX,
-      event.clientY
-    )!;
+    console.assert(currentlyMoving);
 
-    console.assert(nearestNavigationItem);
-
-    console.log(
-      this.props.storyDivision,
-      'is being dragged to',
-      nearestNavigationItem.props.storyDivision
+    Project.moveStoryDivisionToStoryDivision(
+      currentlyMoving!.props.storyDivisionStructure.storyDivisionPointer,
+      this.state.storyDivisionWChildren.storyDivisionPointer
     );
 
-    // Project.moveStoryDivisionToStoryDivision(
-    //   this.props.storyDivision,
-    //   nearestNavigationItem.props.storyDivision
-    // );
+    const newOrganizedStoryDivisionStructure = Project.makeStoryDivisionWChildrenFromStoryDivision(
+      Project.getRootStoryDivision()
+    );
+
+    console.log('Here');
+    console.log(
+      inspect(newOrganizedStoryDivisionStructure, false, null, false)
+    );
+
+    // reload tree display
+    this.props.setState({
+      rootStoryDivisionStructure: newOrganizedStoryDivisionStructure,
+    });
   }
 
   dragHandler(event: React.DragEvent) {
-    // stop this form effecting every item above it too otherwise everything will
+    // stop this from  effecting every item above it too otherwise everything will
     // be trying to get dragged into everything
     event.stopPropagation();
   }
+
+  public getCenter() {}
 
   private getNearestNavigationItem(x: number, y: number) {
     // make this an impossible small amount so that everything is greater than it
     let minY = Number.NEGATIVE_INFINITY;
     let minYItem: Nullable<NavigationItem> = null;
 
-    for (const navigationItem of Object.values(navigationList)) {
-      if (navigationItem === this) continue;
-      console.assert(navigationItem.html.current);
-      console.assert(this.html.current);
+    const navigationListValues = Object.values(navigationList);
 
-      const rect = navigationItem.html.current!.getBoundingClientRect();
+    for (const navigationItem of navigationListValues) {
+      if (this.isThisNavigationItemTheSame(navigationItem)) continue;
+      console.assert(navigationItem.buttonRef.current);
 
+      const rect = navigationItem.buttonRef.current!.getBoundingClientRect();
       const rectCenter = rect.bottom - rect.height / 2;
-      const cursor = y;
-
-      const dist = rectCenter - cursor;
+      const dist = rectCenter - y;
 
       if (Math.abs(dist) < Math.abs(minY)) {
         minY = dist;
@@ -91,7 +123,25 @@ class NavigationItem extends React.Component<
     return minYItem;
   }
 
+  private isThisNavigationItemTheSame(navigationItem: NavigationItem) {
+    // checks if the id's are identical
+    return (
+      this.state.storyDivisionWChildren.storyDivisionPointer.id ===
+      navigationItem.props.storyDivisionStructure.storyDivisionPointer.id
+    );
+  }
+
   render() {
+    console.log(
+      'Rerendering',
+      inspect(
+        this.state.storyDivisionWChildren.storyDivisionPointer,
+        false,
+        null,
+        false
+      )
+    );
+
     return (
       <li className={'navigation-item'} ref={this.html}>
         <ul
@@ -101,20 +151,21 @@ class NavigationItem extends React.Component<
           onDrag={(ev) => this.dragHandler(ev)}
           onDragStart={(event) => {
             event.stopPropagation();
-            console.log('moving', this.state.storyDivision);
+            currentlyMoving = this;
           }}
         >
-          <button>{this.state.storyDivision.label}</button>
-          {Project.getAllImmediateChildren(this.state.storyDivision).map(
-            (childDivision, key) => (
-              <NavigationItem
-                key={key}
-                storyDivision={childDivision}
-                setState={this.props.setState}
-                appState={this.props.appState}
-              />
-            )
-          )}
+          <button ref={this.buttonRef}>
+            {this.state.storyDivisionWChildren.storyDivisionPointer.label}
+          </button>
+
+          {this.state.storyDivisionWChildren.children.map((child, key) => (
+            <NavigationItem
+              key={key}
+              appState={this.props.appState}
+              setState={this.props.setState}
+              storyDivisionStructure={child}
+            />
+          ))}
         </ul>
       </li>
     );
