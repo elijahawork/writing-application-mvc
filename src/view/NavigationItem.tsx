@@ -6,6 +6,10 @@ import { GlobalAppState, GlobalSetAppState } from './App';
 
 const navigationList: Record<number, NavigationItem> = {};
 
+/**
+ * !!! Note to self. Attempt to use an actual nesting system with children, etc. and have that be a separate state from the actual children that are represented in the JSON
+ */
+
 type NavigationItemProps = {
   setState: GlobalSetAppState;
   appState: GlobalAppState;
@@ -22,8 +26,6 @@ class NavigationItem extends React.Component<
   constructor(props: NavigationItemProps) {
     super(props);
     this.state = { storyDivision: props.storyDivision };
-    this.dragOverHandler = this.dragOverHandler.bind(this);
-    this.dragHandler = this.dragHandler.bind(this);
     navigationList[this.props.storyDivision.id] = this;
     console.log(navigationList);
   }
@@ -31,7 +33,12 @@ class NavigationItem extends React.Component<
   html = createRef<HTMLLIElement>();
 
   dragOverHandler(event: React.DragEvent) {
-    console.log(event.target, this.html.current!);
+    event.stopPropagation();
+    event.preventDefault();
+  }
+
+  dropHandler(event: React.DragEvent) {
+    event.stopPropagation();
 
     const nearestNavigationItem = this.getNearestNavigationItem(
       event.clientX,
@@ -40,18 +47,16 @@ class NavigationItem extends React.Component<
 
     console.assert(nearestNavigationItem);
 
-    nearestNavigationItem.setState((state) => {
-      Project.moveStoryDivisionToStoryDivision(
-        this.props.storyDivision,
-        state.storyDivision
-      );
+    console.log(
+      this.props.storyDivision,
+      'is being dragged to',
+      nearestNavigationItem.props.storyDivision
+    );
 
-      return {
-        storyDivision: state.storyDivision,
-      };
-    });
-
-    console.log({ nearestNavigationItem });
+    // Project.moveStoryDivisionToStoryDivision(
+    //   this.props.storyDivision,
+    //   nearestNavigationItem.props.storyDivision
+    // );
   }
 
   dragHandler(event: React.DragEvent) {
@@ -91,8 +96,13 @@ class NavigationItem extends React.Component<
       <li className={'navigation-item'} ref={this.html}>
         <ul
           draggable={true}
-          onDragOver={this.dragOverHandler}
-          onDrag={this.dragHandler}
+          onDragOver={(ev) => this.dragOverHandler(ev)}
+          onDrop={(ev) => this.dropHandler(ev)}
+          onDrag={(ev) => this.dragHandler(ev)}
+          onDragStart={(event) => {
+            event.stopPropagation();
+            console.log('moving', this.state.storyDivision);
+          }}
         >
           <button>{this.state.storyDivision.label}</button>
           {Project.getAllImmediateChildren(this.state.storyDivision).map(
