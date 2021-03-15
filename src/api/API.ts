@@ -11,9 +11,9 @@ namespace API {
   /**
    * @description This is a tuple type that returns the initial project as a view only object and a method to set the value
    */
-  export type ProjectTupleModifier = Promise<
+  export type ProjectTupleModifier = 
     [project: Readonly<IProjectSchema>, setProject: typeof updateProjectFS]
-  >;
+  ;
   /**
    *
    * @param path is the path to create the project file
@@ -23,7 +23,7 @@ namespace API {
   export async function newProjectFS(
     path: PathLike,
     project: IProjectSchema
-  ): ProjectTupleModifier {
+  ): Promise<ProjectTupleModifier> {
     useFSPath(path);
 
     await writeProjectFS(project);
@@ -35,7 +35,7 @@ namespace API {
    * @param path is the path to the project to open
    * @returns the project and a method to set the value as a tuple
    */
-  export async function openProjectFS(path: PathLike): ProjectTupleModifier {
+  export async function openProjectFS(path: PathLike): Promise<ProjectTupleModifier> {
     useFSPath(path);
 
     const projectJSON = await getProjectJSON();
