@@ -4,6 +4,7 @@ import React from 'react';
 import reactDOM from 'react-dom';
 import API from './api/API';
 import IProjectSchema from './schema/IProjectSchema';
+import Project from './util/Project';
 import App from './view/App';
 
 const ROOT_ELEMENT = document.getElementById('root')!;
@@ -34,12 +35,14 @@ const __PROJ_NAME = join(__dirname, '..', 'protected');
       join(__PROJ_NAME, 'Project.aesop'),
       {
         eventArcs: [],
-        id: 7,
+        id: -3,
         label: 'Project',
         mindMaps: [],
         storyDivisions: [],
       }
     );
+
+    Project.useProject([project, setProject]);
 
     loadProjectIntoView(project);
   });
