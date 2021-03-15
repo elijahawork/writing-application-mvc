@@ -17,15 +17,16 @@ class NavigationItem extends React.Component<
   constructor(props: NavigationItemProps) {
     super(props);
     this.state = {};
+    this.dragOverHandler = this.dragOverHandler.bind(this);
   }
+
+  dragOverHandler(event: React.DragEvent) {}
 
   render() {
     return (
       <li className={'navigation-item'}>
-        <ul draggable={true}>
-          <button>
-            {this.props.storyDivision.label}
-          </button>
+        <ul draggable={true} onDragOver={this.dragOverHandler}>
+          <button>{this.props.storyDivision.label}</button>
           {Project.getAllImmediateChildren(this.props.storyDivision).map(
             (childDivision, key) => (
               <NavigationItem
