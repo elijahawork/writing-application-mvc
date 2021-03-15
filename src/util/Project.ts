@@ -2,6 +2,7 @@ import API from '../api/API';
 import IProjectSchema from '../schema/IProjectSchema';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import { Nullable } from '../types/CustomUtilTypes';
+import { StoryDivisionWChildren } from '../view/NavigationItem';
 
 let currentProject: Nullable<IProjectSchema>;
 let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
@@ -9,6 +10,32 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
+  export function makeStoryDivisionWChildrenFromStoryDivision(
+    storyDivision: IStoryDivisionSchema
+  ): StoryDivisionWChildren {
+    const children = getAllImmediateChildren(storyDivision);
+
+    // this is a base case
+    // for when there are no children
+    if (children.length === 0) {
+      return {
+        storyDivisionPointer: storyDivision,
+        children: [],
+      };
+      // when there are children
+      // we will need to approach this recursively
+    } else {
+      // this is a recursive mapping of all children as a storydivisionwchildren
+      const mappedChildren = children.map((child) => {
+        return makeStoryDivisionWChildrenFromStoryDivision(child);
+      });
+
+      return {
+        storyDivisionPointer: storyDivision,
+        children: mappedChildren,
+      };
+    }
+  }
   export function getStoryDivisionById(
     id: number
   ): Nullable<IStoryDivisionSchema> {
