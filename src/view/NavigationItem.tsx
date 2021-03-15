@@ -22,8 +22,10 @@ class NavigationItem extends React.Component<
   render() {
     return (
       <li className={'navigation-item'}>
-        <ul>
-          {this.props.storyDivision.label}
+        <ul draggable={true}>
+          <button>
+            {this.props.storyDivision.label}
+          </button>
           {Project.getAllImmediateChildren(this.props.storyDivision).map(
             (childDivision, key) => (
               <NavigationItem
