@@ -29,12 +29,6 @@ class App extends React.Component<AppProps, AppState> {
     this.state = {
       projectSettings: props.projectSettings,
     };
-
-    // set the current project in use to the project of the app
-    // this should never be a problem as no two projects should be capable
-    // of running in the same window at the same time at any meaningful
-    // point in this project
-    Project.useProject(props.projectSettings);
   }
   render() {
     return (
