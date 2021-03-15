@@ -8,6 +8,11 @@ let currentProject: Nullable<IProjectSchema>;
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 
 namespace Project {
+  export function getStoryDivisionById(id: number): Nullable<IStoryDivisionSchema> {
+    console.assert(storyDivisionRegistry[id]);
+    return storyDivisionRegistry[id] ?? null;
+  } 
+  
   /**
    *
    * @returns the root story division registry
