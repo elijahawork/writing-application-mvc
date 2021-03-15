@@ -1,18 +1,36 @@
+import API from '../api/API';
 import IProjectSchema from '../schema/IProjectSchema';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import { Nullable } from '../types/CustomUtilTypes';
 
 let currentProject: Nullable<IProjectSchema>;
+let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
-
 namespace Project {
-  export function getStoryDivisionById(id: number): Nullable<IStoryDivisionSchema> {
+  export function getStoryDivisionById(
+    id: number
+  ): Nullable<IStoryDivisionSchema> {
     console.assert(storyDivisionRegistry[id]);
     return storyDivisionRegistry[id] ?? null;
-  } 
-  
+  }
+
+  export function moveStoryDivisionToStoryDivision(
+    storyDivisionChild: IStoryDivisionSchema,
+    storyDivisionParent: IStoryDivisionSchema
+  ): IProjectSchema {
+    console.assert(usingProject());
+
+    storyDivisionChild.parentId = storyDivisionParent.id;
+
+    currentSetProject!({
+      storyDivisions: currentProject!.storyDivisions,
+    });
+
+    return currentProject!;
+  }
+
   /**
    *
    * @returns the root story division registry
@@ -27,11 +45,13 @@ namespace Project {
   }
   /**
    *
-   * @param project is the project that the functions should all be using
+   * @param projectTuple is the project that the functions should all be using
    * @description Sets the current project for all the functions to use
    */
-  export function useProject(project: IProjectSchema) {
+  export function useProject(projectTuple: API.ProjectTupleModifier) {
+    const [project, setProject] = projectTuple;
     currentProject = project;
+    currentSetProject = setProject;
     registerAllStoryDivisionsInProject();
   }
   /**
