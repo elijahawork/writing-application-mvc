@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import { Nullable } from '../types/CustomUtilTypes';
 import Project, { StoryDivisionTree } from '../util/Project';
 
@@ -17,6 +17,7 @@ type NavigationItemProps = StoryDivisionTree & {
 };
 type NavigationItemState = {
   childDivisions: StoryDivisionTree[];
+  disabled: boolean;
 };
 
 let currentlyDragging: NavigationItem[] = [];
@@ -25,10 +26,12 @@ class NavigationItem extends React.Component<
   NavigationItemProps,
   NavigationItemState
 > {
+  private labelRef = createRef<HTMLInputElement>();
   constructor(props: NavigationItemProps) {
     super(props);
     this.state = {
       childDivisions: props.childDivisions,
+      disabled: true,
     };
 
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
@@ -37,11 +40,22 @@ class NavigationItem extends React.Component<
     this.dragStartHandler = this.dragStartHandler.bind(this);
     this.dragEndHandler = this.dragEndHandler.bind(this);
     this.onDropReceiveHandler = this.onDropReceiveHandler.bind(this);
+    this.updateNamingChange = this.updateNamingChange.bind(this);
     // because the dnd api sucks, these need to exist to cancel for the drop to take effect @.@
     this.dragEnterHandler = this.dragEnterHandler.bind(this);
     this.dragOverHandler = this.dragOverHandler.bind(this);
-  }
 
+    this.makeLabelEditable = this.makeLabelEditable.bind(this);
+    this.makeLabelUneditable = this.makeLabelUneditable.bind(this);
+  }
+  updateNamingChange() {
+    console.assert(this.labelRef.current);
+
+    Project.relabelStoryDivision(
+      this.props.storyDivision,
+      this.labelRef.current!.value
+    );
+  }
   removeFromParent() {
     console.assert(this.props.parentSetState);
     this.props.parentSetState!((state) => ({
@@ -131,6 +145,16 @@ class NavigationItem extends React.Component<
     currentlyDragging = currentlyDragging.filter((e) => e !== this);
   }
 
+  makeLabelEditable() {
+    console.assert(this.labelRef.current);
+
+    this.setState({ disabled: false });
+    this.labelRef.current!.focus();
+  }
+  makeLabelUneditable() {
+    this.setState({ disabled: true });
+  }
+
   render() {
     console.log(this.props.storyDivision.label, 'felt the need to rerender');
 
@@ -143,14 +167,26 @@ class NavigationItem extends React.Component<
         onDragEnter={this.dragEnterHandler}
         onDrop={this.onDropReceiveHandler}
       >
-        <span className={'navigation-item-modification-wrapper'}>
+        <span
+          className={'navigation-item-modification-wrapper'}
+          onDoubleClick={this.makeLabelEditable}
+          onBlur={this.makeLabelUneditable}
+          tabIndex={0}
+        >
           <button
             onClick={this.createNewChildDivision}
             className={'navigation-item-modification-button'}
           >
             +
           </button>
-          <button>{this.props.storyDivision.label}</button>
+          <button>
+            <input
+              ref={this.labelRef}
+              onChange={this.updateNamingChange}
+              defaultValue={this.props.storyDivision.label}
+              disabled={this.state.disabled}
+            />
+          </button>
           <button
             onClick={this.removeFromParent}
             className={'navigation-item-modification-button'}
