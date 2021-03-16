@@ -170,8 +170,6 @@ class NavigationItem extends React.Component<
         <span
           className={'navigation-item-modification-wrapper'}
           onDoubleClick={this.makeLabelEditable}
-          onBlur={this.makeLabelUneditable}
-          tabIndex={0}
         >
           <button
             onClick={this.createNewChildDivision}
@@ -182,6 +180,7 @@ class NavigationItem extends React.Component<
           <button>
             <input
               ref={this.labelRef}
+              onBlur={this.makeLabelUneditable}
               onChange={this.updateNamingChange}
               defaultValue={this.props.storyDivision.label}
               disabled={this.state.disabled}
@@ -195,14 +194,16 @@ class NavigationItem extends React.Component<
           </button>
         </span>
         <ul>
-          {this.state.childDivisions.map((child, key) => (
-            <NavigationItem
-              childDivisions={child.childDivisions}
-              storyDivision={child.storyDivision}
-              key={key}
-              parentSetState={this.setState}
-            />
-          ))}
+          {this.state.childDivisions
+            .sort(compareStoryDivisionTrees)
+            .map((child, key) => (
+              <NavigationItem
+                childDivisions={child.childDivisions}
+                storyDivision={child.storyDivision}
+                key={key}
+                parentSetState={this.setState}
+              />
+            ))}
         </ul>
       </li>
     );
@@ -210,3 +211,13 @@ class NavigationItem extends React.Component<
 }
 
 export default NavigationItem;
+
+function compareStoryDivisionTrees(
+  storyDivisionA: StoryDivisionTree,
+  storyDivisionB: StoryDivisionTree
+) {
+  return (
+    storyDivisionA.storyDivision.position -
+    storyDivisionB.storyDivision.position
+  );
+}
