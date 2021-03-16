@@ -14,6 +14,22 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
+  export function generateUntitledStoryDivision(): IStoryDivisionSchema {
+    const id = generateUniqueStoryDivisionID();
+
+    return {
+      id,
+      content: '',
+      // it is of an 
+      label: 'Untitled',
+      // attach it to the root
+      parentId: getRootStoryDivision().id,
+      // this will put this element in the last position in the root
+      // story division
+      position: getImmediateChildren(getRootStoryDivision()).length
+    }
+  }
+  
   export function addStoryDivision(
     storyDivision: IStoryDivisionSchema
   ): Readonly<IProjectSchema> {
@@ -144,7 +160,21 @@ namespace Project {
   }
 
   function storyDivisionAlreadyRegistered(storyDivision: IStoryDivisionSchema) {
-    return !!storyDivisionRegistry[storyDivision.id];
+    return storyDivisionIDAlreadyRegistered(storyDivision.id);
+  }
+
+  function storyDivisionIDAlreadyRegistered(storyDivisionId: number) {
+    return !!storyDivisionRegistry[storyDivisionId];
+  }
+
+  function generateUniqueStoryDivisionID() {
+    let id: Nullable<number> = null;
+    const idCount = Object.values(storyDivisionRegistry).length;
+    // there is a very very very very ... very small chance that this could cause an infinite loop
+    // this should be considered a possible bug and fixed in later versions 
+    while (!storyDivisionIDAlreadyRegistered((id = Math.floor(Math.random() * 2 * idCount))));
+
+    return id!;
   }
 }
 
