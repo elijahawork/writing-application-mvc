@@ -20,7 +20,7 @@ namespace Project {
   ): IStoryDivisionSchema {
     const id = generateUniqueStoryDivisionID();
 
-    return {
+    const newStoryDivision = {
       id,
       content: '',
       // it is of an
@@ -30,6 +30,8 @@ namespace Project {
       // story division
       position: getImmediateChildren(getRootStoryDivision()).length,
     };
+
+    return newStoryDivision;
   }
 
   export function addStoryDivision(
@@ -158,7 +160,7 @@ namespace Project {
     );
   }
   function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
-    console.assert(!storyDivisionAlreadyRegistered(storyDivision));
+    console.assert(storyDivisionAlreadyRegistered(storyDivision));
 
     storyDivisionRegistry[storyDivision.id] = storyDivision;
   }
