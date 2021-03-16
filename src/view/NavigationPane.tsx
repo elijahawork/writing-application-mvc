@@ -1,4 +1,5 @@
 import React, { createRef } from 'react';
+import { inspect } from 'util';
 import { Nullable } from '../types/CustomUtilTypes';
 import { StoryDivisionTree } from '../util/Project';
 import NavigationItem from './NavigationItem';
@@ -10,7 +11,6 @@ type NavigationPaneProps = {
 type NavigationPaneState = {
   storyDivisionTree: StoryDivisionTree;
 };
-export let paneRef: Nullable<NavigationPane> = null;
 class NavigationPane extends React.Component<
   NavigationPaneProps,
   NavigationPaneState
@@ -30,11 +30,15 @@ class NavigationPane extends React.Component<
 
   public static currentRootRef = createRef<NavigationItem>();
 
-  componentDidMount(): void {
-    paneRef = this;
-  }
-  componentWillUnmount(): void {
-    paneRef = null;
+  updateTree(tree: StoryDivisionTree) {
+    this.setState({ storyDivisionTree: tree }, () => {
+      'updated state';
+      console.log(
+        'Updating',
+        inspect(this.state, false, null, false),
+        'with new tree'
+      );
+    });
   }
 
   render() {
