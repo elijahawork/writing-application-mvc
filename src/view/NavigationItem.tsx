@@ -43,7 +43,6 @@ class NavigationItem extends React.Component<
   }
 
   removeFromParent() {
-    Project.removeStoryDivision(this.props.storyDivision);
     console.assert(this.props.parentSetState);
     this.props.parentSetState!((state) => ({
       childDivisions: state.childDivisions.filter(
