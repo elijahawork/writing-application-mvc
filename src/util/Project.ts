@@ -1,3 +1,4 @@
+import { inspect } from 'util';
 import API from '../api/API';
 import IProjectSchema from '../schema/IProjectSchema';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
@@ -113,6 +114,8 @@ namespace Project {
    */
   export function useProject(projectTuple: API.ProjectTupleModifier) {
     const [project, setProject] = projectTuple;
+    console.log(inspect(project, false, null, false));
+    
     currentProject = project;
     currentSetProject = setProject;
     registerAllStoryDivisionsInProject();
@@ -161,6 +164,7 @@ namespace Project {
   }
   function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
     console.assert(!storyDivisionAlreadyRegistered(storyDivision));
+    console.trace()
 
     storyDivisionRegistry[storyDivision.id] = storyDivision;
   }
@@ -179,7 +183,7 @@ namespace Project {
     // there is a very very very very ... very small chance that this could cause an infinite loop
     // this should be considered a possible bug and fixed in later versions
     while (
-      !storyDivisionIDAlreadyRegistered(
+      storyDivisionIDAlreadyRegistered(
         (id = Math.floor(Math.random() * 2 * idCount))
       )
     );
