@@ -15,6 +15,24 @@ class NavigationItem extends React.Component<
     this.state = {
       childDivisions: props.childDivisions,
     };
+    this.createNewChildDivision = this.createNewChildDivision.bind(this);
+  }
+
+  createNewChildDivision() {
+    // create a new story division with this story division as its parent
+    const newStoryDivision = Project.generateUntitledStoryDivision(this.props.storyDivision.id);
+    
+    Project.addStoryDivision(newStoryDivision);
+    
+    this.setState((state) => ({
+      childDivisions: [
+        ...state.childDivisions,
+        {
+          childDivisions: [],
+          storyDivision: newStoryDivision,
+        },
+      ],
+    }));
   }
 
   render() {
@@ -22,29 +40,7 @@ class NavigationItem extends React.Component<
 
     return (
       <li>
-        <button
-          onClick={() => {
-            const newStoryDivision = {
-              content: '',
-              id: 5,
-              label: 'New Item',
-              parentId: this.props.storyDivision.id,
-              position: 0,
-            };
-            Project.addStoryDivision(newStoryDivision);
-            this.setState((state) => ({
-              childDivisions: [
-                ...state.childDivisions,
-                {
-                  childDivisions: [],
-                  storyDivision: newStoryDivision,
-                },
-              ],
-            }));
-          }}
-        >
-          +
-        </button>
+        <button onClick={this.createNewChildDivision}>+</button>
         <button>{this.props.storyDivision.label}</button>
         <ul>
           {this.state.childDivisions.map((child, key) => (
