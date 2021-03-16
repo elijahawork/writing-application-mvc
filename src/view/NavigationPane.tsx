@@ -47,6 +47,7 @@ class NavigationPane extends React.Component<
         <NavigationItem
           childDivisions={this.state.storyDivisionTree.childDivisions}
           storyDivision={this.state.storyDivisionTree.storyDivision}
+          parentSetState={null}
         />
       </nav>
     );
