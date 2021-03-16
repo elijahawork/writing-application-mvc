@@ -160,7 +160,7 @@ namespace Project {
     );
   }
   function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
-    console.assert(storyDivisionAlreadyRegistered(storyDivision));
+    console.assert(!storyDivisionAlreadyRegistered(storyDivision));
 
     storyDivisionRegistry[storyDivision.id] = storyDivision;
   }
