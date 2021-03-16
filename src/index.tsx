@@ -7,7 +7,6 @@ import API from './api/API';
 import IProjectSchema from './schema/IProjectSchema';
 import Project, { StoryDivisionTree } from './util/Project';
 import App from './view/App';
-import { paneRef } from './view/NavigationPane';
 
 const ROOT_ELEMENT = document.getElementById('root')!;
 
@@ -118,18 +117,6 @@ const __PROJ_NAME = join(__dirname, '..', 'protected');
       );
 
       console.log(inspect(newTree.childDivisions, false, null, false));
-
-      paneRef?.setState(
-        (state) => {
-          console.log('setting state');
-          return {
-            storyDivisionTree: newTree,
-          };
-        },
-        () => {
-          console.log(inspect(paneRef!.state, false, null, false));
-        }
-      );
     }, 1000);
   });
 })();
