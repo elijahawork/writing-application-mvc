@@ -2,10 +2,12 @@ import { access, promises } from 'fs';
 import { join } from 'path';
 import React from 'react';
 import reactDOM from 'react-dom';
+import { inspect } from 'util';
 import API from './api/API';
 import IProjectSchema from './schema/IProjectSchema';
-import Project from './util/Project';
+import Project, { StoryDivisionTree } from './util/Project';
 import App from './view/App';
+import { paneRef } from './view/NavigationPane';
 
 const ROOT_ELEMENT = document.getElementById('root')!;
 
@@ -31,23 +33,115 @@ const __PROJ_NAME = join(__dirname, '..', 'protected');
       await promises.mkdir(__PROJ_NAME);
     }
 
-    const [project, setProject] = await API.newProjectFS(
-      join(__PROJ_NAME, 'Project.aesop'),
-      {
-        eventArcs: [],
-        id: -3,
-        label: 'Project',
-        mindMaps: [],
-        storyDivisions: [],
-      }
+    // const [project, setProject] = await API.newProjectFS(
+    //   join(__PROJ_NAME, 'Project.aesop'),
+    //   {
+    //     eventArcs: [],
+    //     id: -3,
+    //     label: 'Project',
+    //     mindMaps: [],
+    //     storyDivisions: [
+    //       {
+    //         content: '',
+    //         id: -1,
+    //         label: 'Manuscript',
+    //         parentId: -2,
+    //         position: 0
+    //       },
+    //       {
+    //         content: '',
+    //         id: 0,
+    //         label: 'Child 0',
+    //         parentId: -1,
+    //         position: 0
+    //       },
+    //       {
+    //         content: '',
+    //         id: 2,
+    //         label: 'Child 2',
+    //         parentId: 0,
+    //         position: 0
+    //       },
+    //       {
+    //         content: '',
+    //         id: 1,
+    //         label: 'Child 1',
+    //         parentId: -1,
+    //         position: 0
+    //       },
+    //       {
+    //         content: '',
+    //         id: 3,
+    //         label: 'Child 3',
+    //         parentId: 1,
+    //         position: 0
+    //       },
+    //     ],
+    //   }
+    // );
+
+    const [project, setProject] = await API.openProjectFS(
+      join(__PROJ_NAME, 'Project.aesop')
     );
 
     Project.useProject([project, setProject]);
 
-    loadProjectIntoView(project);
+    const tree = Project.generateTreeOfStoryDivisions(
+      Project.getRootStoryDivision()
+    );
+
+    console.log(inspect(tree, false, null, false));
+
+    Project.moveStoryDivisionTo(
+      Project.getStoryDivisionById(2)!,
+      Project.getStoryDivisionById(0)!
+    );
+
+    const newTree = Project.generateTreeOfStoryDivisions(
+      Project.getRootStoryDivision()
+    );
+
+    console.log(inspect(newTree, false, null, false));
+
+    loadProjectIntoView(project, newTree);
+
+    setTimeout(() => {
+      console.log('Running update');
+
+      Project.moveStoryDivisionTo(
+        Project.getStoryDivisionById(2)!,
+        Project.getStoryDivisionById(3)!
+      );
+
+      const newTree = Project.generateTreeOfStoryDivisions(
+        Project.getRootStoryDivision()
+      );
+
+      console.log(inspect(newTree.childDivisions, false, null, false));
+
+      paneRef?.setState(
+        (state) => {
+          console.log('setting state');
+          return {
+            storyDivisionTree: newTree,
+          };
+        },
+        () => {
+          console.log(inspect(paneRef!.state, false, null, false));
+        }
+      );
+    }, 1000);
   });
 })();
-
-function loadProjectIntoView(project: IProjectSchema) {
-  reactDOM.render(<App projectSettings={project} />, ROOT_ELEMENT);
+function loadProjectIntoView(
+  project: IProjectSchema,
+  rootStoryDivisionTree: StoryDivisionTree
+) {
+  reactDOM.render(
+    <App
+      projectSettings={project}
+      rootStoryDivisionTree={rootStoryDivisionTree}
+    />,
+    ROOT_ELEMENT
+  );
 }
