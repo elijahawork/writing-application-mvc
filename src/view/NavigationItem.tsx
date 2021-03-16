@@ -1,6 +1,5 @@
 import React from 'react';
-import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
-import { StoryDivisionTree } from '../util/Project';
+import Project, { StoryDivisionTree } from '../util/Project';
 
 type NavigationItemProps = StoryDivisionTree & {};
 type NavigationItemState = {
@@ -23,6 +22,29 @@ class NavigationItem extends React.Component<
 
     return (
       <li>
+        <button
+          onClick={() => {
+            const newStoryDivision = {
+              content: '',
+              id: 5,
+              label: 'New Item',
+              parentId: this.props.storyDivision.id,
+              position: 0,
+            };
+            Project.addStoryDivision(newStoryDivision);
+            this.setState((state) => ({
+              childDivisions: [
+                ...state.childDivisions,
+                {
+                  childDivisions: [],
+                  storyDivision: newStoryDivision,
+                },
+              ],
+            }));
+          }}
+        >
+          +
+        </button>
         <button>{this.props.storyDivision.label}</button>
         <ul>
           {this.state.childDivisions.map((child, key) => (
