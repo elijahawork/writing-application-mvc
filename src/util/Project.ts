@@ -14,16 +14,21 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
-  export function addStoryDivision(storyDivision: IStoryDivisionSchema): Readonly<IProjectSchema> {
+  export function addStoryDivision(
+    storyDivision: IStoryDivisionSchema
+  ): Readonly<IProjectSchema> {
     console.assert(usingProject());
     currentSetProject!({
       storyDivisions: [...currentProject!.storyDivisions, storyDivision],
     });
+
+    registerStoryDivision(storyDivision)
+
     return currentProject!;
   }
   export function generateTreeOfStoryDivisions(
     storyDivision: IStoryDivisionSchema
-  ): StoryDivisionTree {
+  ): Readonly<StoryDivisionTree> {
     const children = getImmediateChildren(storyDivision);
 
     // this is a base case
@@ -49,15 +54,15 @@ namespace Project {
   }
   export function getStoryDivisionById(
     id: number
-  ): Nullable<IStoryDivisionSchema> {
+  ): Readonly<IStoryDivisionSchema> {
     console.assert(storyDivisionRegistry[id]);
-    return storyDivisionRegistry[id] ?? null;
+    return storyDivisionRegistry[id];
   }
 
   export function moveStoryDivisionTo(
     storyDivisionChild: IStoryDivisionSchema,
     storyDivisionParent: IStoryDivisionSchema
-  ): IProjectSchema {
+  ): Readonly<IProjectSchema> {
     console.assert(usingProject());
 
     storyDivisionChild.parentId = storyDivisionParent.id;
@@ -77,7 +82,7 @@ namespace Project {
    * has to have the id of -1.
    * This should be patched in a later update
    */
-  export function getRootStoryDivision(): IStoryDivisionSchema {
+  export function getRootStoryDivision(): Readonly<IStoryDivisionSchema> {
     console.assert(storyDivisionRegistry[-1], 'There is no root for project');
     return storyDivisionRegistry[-1];
   }
@@ -99,7 +104,7 @@ namespace Project {
    */
   export function getImmediateChildren(
     storyDivision: IStoryDivisionSchema
-  ): IStoryDivisionSchema[] {
+  ): ReadonlyArray<Readonly<IStoryDivisionSchema>> {
     console.assert(usingProject());
     console.assert(
       storyDivisionExistsInProject(storyDivision),
@@ -117,7 +122,7 @@ namespace Project {
     return children;
   }
 
-  function storyDivisionExistsInProject(storyDivision: IStoryDivisionSchema) {
+  function storyDivisionExistsInProject(storyDivision: IStoryDivisionSchema): boolean {
     return storyDivisionRegistry[storyDivision.id] === storyDivision;
   }
 
@@ -125,21 +130,21 @@ namespace Project {
     return currentProject !== null;
   }
 
-  function registerAllStoryDivisionsInProject() {
+  function registerAllStoryDivisionsInProject(): void {
     console.assert(usingProject());
 
     currentProject!.storyDivisions.forEach((storyDivision) =>
       registerStoryDivision(storyDivision)
     );
   }
-  function registerStoryDivision(storyDivision: IStoryDivisionSchema) {
+  function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
     console.assert(!storyDivisionAlreadyRegistered(storyDivision));
 
     storyDivisionRegistry[storyDivision.id] = storyDivision;
   }
 
   function storyDivisionAlreadyRegistered(storyDivision: IStoryDivisionSchema) {
-    return storyDivisionRegistry[storyDivision.id];
+    return !!storyDivisionRegistry[storyDivision.id];
   }
 }
 
