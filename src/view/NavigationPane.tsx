@@ -1,61 +1,52 @@
 import React, { createRef } from 'react';
-import { inspect } from 'util';
-import { GlobalAppState, GlobalSetAppState } from './App';
-import NavigationItem, { StoryDivisionWChildren } from './NavigationItem';
+import { Nullable } from '../types/CustomUtilTypes';
+import { StoryDivisionTree } from '../util/Project';
+import NavigationItem from './NavigationItem';
 
 type NavigationPaneProps = {
-  setAppState: GlobalSetAppState;
-  appState: GlobalAppState;
-  rootStoryDivisionStructure: StoryDivisionWChildren;
+  initialStoryDivisionTree: StoryDivisionTree;
 };
-
-export type GlobalSetNavigationPaneState = <
-  K extends keyof NavigationPaneState
->(
-  state:
-    | ((
-        prevState: Readonly<NavigationPaneState>,
-        props: Readonly<NavigationPaneProps>
-      ) => Pick<NavigationPaneState, K> | NavigationPaneState | null)
-    | (Pick<NavigationPaneState, K> | null),
-  callback?: () => void
-) => void;
-
-export type globalNavigationPaneState = NavigationPaneState;
 
 type NavigationPaneState = {
-  rootStoryDivisionStructure: StoryDivisionWChildren;
+  storyDivisionTree: StoryDivisionTree;
 };
-
-export let globalNavigationPane: NavigationPane;
-
-export const rootRef = createRef<NavigationItem>();
-
+export let paneRef: Nullable<NavigationPane> = null;
 class NavigationPane extends React.Component<
   NavigationPaneProps,
   NavigationPaneState
 > {
   constructor(props: NavigationPaneProps) {
     super(props);
-    this.state = {
-      rootStoryDivisionStructure: props.rootStoryDivisionStructure,
-    };
-    // maybe unnecessary
-    globalNavigationPane = this;
+
     this.setState = this.setState.bind(this);
+
+    this.state = {
+      // set the beginning state to the initially provided story division tree
+      // this will be updated though
+      // which will update the view
+      storyDivisionTree: props.initialStoryDivisionTree,
+    };
+  }
+
+  public static currentRootRef = createRef<NavigationItem>();
+
+  componentDidMount(): void {
+    paneRef = this;
+  }
+  componentWillUnmount(): void {
+    paneRef = null;
   }
 
   render() {
-    console.log('Rendering');
-    console.log('rendering story structure', inspect(this.state.rootStoryDivisionStructure, false, null, false));
-    
+    console.log('Rendering Navigation Pane.');
+
     return (
       <nav>
         <NavigationItem
-          ref={rootRef}
-          setState={this.setState}
-          appState={this.state}
-          storyDivisionStructure={this.state.rootStoryDivisionStructure}
+          // this is used to be able to dev change state
+          ref={NavigationPane.currentRootRef}
+          childDivisions={this.state.storyDivisionTree.childDivisions}
+          storyDivision={this.state.storyDivisionTree.storyDivision}
         />
       </nav>
     );

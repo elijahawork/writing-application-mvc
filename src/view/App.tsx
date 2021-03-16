@@ -1,7 +1,6 @@
 import React from 'react';
 import IProjectSchema from '../schema/IProjectSchema';
-import Project from '../util/Project';
-import { StoryDivisionWChildren } from './NavigationItem';
+import { StoryDivisionTree } from '../util/Project';
 import NavigationPane from './NavigationPane';
 
 export type GlobalSetAppState = <K extends keyof AppState>(
@@ -18,26 +17,18 @@ export type GlobalAppState = AppState;
 
 type AppProps = {
   projectSettings: IProjectSchema;
+  rootStoryDivisionTree: StoryDivisionTree;
 };
 type AppState = {
   projectSettings: IProjectSchema;
-  rootStoryDivisionStructure: StoryDivisionWChildren;
 };
 
 class App extends React.Component<AppProps, AppState> {
   constructor(props: AppProps) {
     super(props);
 
-    const rootStoryDivision = Project.getRootStoryDivision();
-    const rootStoryDivisionWChildren = Project.makeStoryDivisionWChildrenFromStoryDivision(
-      rootStoryDivision
-    );
-
-    this.setState = this.setState.bind(this);
-
     this.state = {
       projectSettings: props.projectSettings,
-      rootStoryDivisionStructure: rootStoryDivisionWChildren,
     };
   }
   render() {
@@ -45,9 +36,7 @@ class App extends React.Component<AppProps, AppState> {
       <div>
         {
           <NavigationPane
-            rootStoryDivisionStructure={this.state.rootStoryDivisionStructure}
-            appState={this.state}
-            setAppState={this.setState}
+            initialStoryDivisionTree={this.props.rootStoryDivisionTree}
           />
         }
       </div>
