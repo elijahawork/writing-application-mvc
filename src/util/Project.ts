@@ -2,7 +2,11 @@ import API from '../api/API';
 import IProjectSchema from '../schema/IProjectSchema';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import { Nullable } from '../types/CustomUtilTypes';
-import { StoryDivisionWChildren } from '../view/NavigationItem';
+
+export type StoryDivisionTree = {
+  storyDivision: Readonly<IStoryDivisionSchema>;
+  childDivisions: StoryDivisionTree[];
+};
 
 let currentProject: Nullable<IProjectSchema>;
 let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
@@ -10,29 +14,29 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
-  export function makeStoryDivisionWChildrenFromStoryDivision(
+  export function generateTreeOfStoryDivisions(
     storyDivision: IStoryDivisionSchema
-  ): StoryDivisionWChildren {
-    const children = getAllImmediateChildren(storyDivision);
+  ): StoryDivisionTree {
+    const children = getImmediateChildren(storyDivision);
 
     // this is a base case
     // for when there are no children
     if (children.length === 0) {
       return {
-        storyDivisionPointer: storyDivision,
-        children: [],
+        storyDivision,
+        childDivisions: [],
       };
       // when there are children
       // we will need to approach this recursively
     } else {
-      // this is a recursive mapping of all children as a storydivisionwchildren
+      // this is a recursive tree structure
       const mappedChildren = children.map((child) => {
-        return makeStoryDivisionWChildrenFromStoryDivision(child);
+        return generateTreeOfStoryDivisions(child);
       });
 
       return {
-        storyDivisionPointer: storyDivision,
-        children: mappedChildren,
+        storyDivision,
+        childDivisions: mappedChildren,
       };
     }
   }
@@ -43,7 +47,7 @@ namespace Project {
     return storyDivisionRegistry[id] ?? null;
   }
 
-  export function moveStoryDivisionToStoryDivision(
+  export function moveStoryDivisionTo(
     storyDivisionChild: IStoryDivisionSchema,
     storyDivisionParent: IStoryDivisionSchema
   ): IProjectSchema {
@@ -86,7 +90,7 @@ namespace Project {
    * @param storyDivision is the division to run through
    * @returns all the immediate children (not grandchildren) of the provided story division
    */
-  export function getAllImmediateChildren(
+  export function getImmediateChildren(
     storyDivision: IStoryDivisionSchema
   ): IStoryDivisionSchema[] {
     console.assert(usingProject());
