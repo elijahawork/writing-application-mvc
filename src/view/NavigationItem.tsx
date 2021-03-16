@@ -2,10 +2,7 @@ import React from 'react';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
 import { StoryDivisionTree } from '../util/Project';
 
-type NavigationItemProps = {
-  storyDivision: IStoryDivisionSchema;
-  childDivisions: StoryDivisionTree[];
-};
+type NavigationItemProps = StoryDivisionTree & {};
 type NavigationItemState = {
   childDivisions: StoryDivisionTree[];
 };
