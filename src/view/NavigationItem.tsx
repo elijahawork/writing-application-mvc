@@ -19,6 +19,8 @@ type NavigationItemState = {
   childDivisions: StoryDivisionTree[];
 };
 
+let currentlyDragging: NavigationItem[] = [];
+
 class NavigationItem extends React.Component<
   NavigationItemProps,
   NavigationItemState
@@ -28,9 +30,13 @@ class NavigationItem extends React.Component<
     this.state = {
       childDivisions: props.childDivisions,
     };
+
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
     this.removeThis = this.removeThis.bind(this);
     this.setState = this.setState.bind(this);
+    this.dragStartHandler = this.dragStartHandler.bind(this);
+    this.dragEndHandler = this.dragEndHandler.bind(this);
+    this.onDropReceiveHandler = this.onDropReceiveHandler.bind(this);
   }
 
   removeThis() {
@@ -62,11 +68,43 @@ class NavigationItem extends React.Component<
     }));
   }
 
+  public dragStartHandler(event: React.DragEvent<HTMLLIElement>) {
+    event.stopPropagation();
+    this.registerThisAsCurrentlyDragging();
+    console.log(currentlyDragging);
+  }
+
+  public dragEndHandler(event: React.DragEvent<HTMLLIElement>) {
+    event.stopPropagation();
+    this.unregisterThisAsCurrentlyDragging();
+    console.log(currentlyDragging);
+  }
+
+  public onDropReceiveHandler(event: React.DragEvent<HTMLLIElement>) {
+    event.stopPropagation();
+
+    // only going to handle one dragged element rn
+    const registeredDraggingElement = currentlyDragging[0];
+    
+  }
+
+  private registerThisAsCurrentlyDragging() {
+    currentlyDragging.push(this);
+  }
+  private unregisterThisAsCurrentlyDragging() {
+    currentlyDragging = currentlyDragging.filter((e) => e !== this);
+  }
+
   render() {
     console.log(this.props.storyDivision.label, 'felt the need to rerender');
 
     return (
-      <li>
+      <li
+        draggable={true}
+        onDragStart={this.dragStartHandler}
+        onDragEnd={this.dragEndHandler}
+
+      >
         <span className={'navigation-item-modification-wrapper'}>
           <button
             onClick={this.createNewChildDivision}
