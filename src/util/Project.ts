@@ -34,7 +34,32 @@ namespace Project {
 
     return newStoryDivision;
   }
+  // untested
+  export function removeStoryDivision(
+    storyDivision: IStoryDivisionSchema
+  ): void;
+  export function removeStoryDivision(id: number): void;
+  export function removeStoryDivision(
+    predicate: number | IStoryDivisionSchema
+  ) {
+    console.assert(usingProject());
 
+    if (typeof predicate === 'number') {
+      currentSetProject!({
+        storyDivisions: currentProject!.storyDivisions.filter(
+          (e) => e.id !== predicate
+        ),
+      });
+      delete storyDivisionRegistry[predicate];
+    } else {
+      currentSetProject!({
+        storyDivisions: currentProject!.storyDivisions.filter(
+          (e) => e !== predicate
+        ),
+      });
+      delete storyDivisionRegistry[predicate.id];
+    }
+  }
   export function addStoryDivision(
     storyDivision: IStoryDivisionSchema
   ): Readonly<IProjectSchema> {
@@ -115,7 +140,7 @@ namespace Project {
   export function useProject(projectTuple: API.ProjectTupleModifier) {
     const [project, setProject] = projectTuple;
     console.log(inspect(project, false, null, false));
-    
+
     currentProject = project;
     currentSetProject = setProject;
     registerAllStoryDivisionsInProject();
@@ -164,7 +189,7 @@ namespace Project {
   }
   function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
     console.assert(!storyDivisionAlreadyRegistered(storyDivision));
-    console.trace()
+    console.trace();
 
     storyDivisionRegistry[storyDivision.id] = storyDivision;
   }
