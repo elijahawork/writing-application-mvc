@@ -32,14 +32,17 @@ class NavigationItem extends React.Component<
     };
 
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
-    this.removeThis = this.removeThis.bind(this);
+    this.removeFromParent = this.removeFromParent.bind(this);
     this.setState = this.setState.bind(this);
     this.dragStartHandler = this.dragStartHandler.bind(this);
     this.dragEndHandler = this.dragEndHandler.bind(this);
     this.onDropReceiveHandler = this.onDropReceiveHandler.bind(this);
+    // because the dnd api sucks, these need to exist to cancel for the drop to take effect @.@
+    this.dragEnterHandler = this.dragEnterHandler.bind(this);
+    this.dragOverHandler = this.dragOverHandler.bind(this);
   }
 
-  removeThis() {
+  removeFromParent() {
     Project.removeStoryDivision(this.props.storyDivision);
     console.assert(this.props.parentSetState);
     this.props.parentSetState!((state) => ({
@@ -76,16 +79,50 @@ class NavigationItem extends React.Component<
 
   public dragEndHandler(event: React.DragEvent<HTMLLIElement>) {
     event.stopPropagation();
+    // this is fired after the drop event, so un-registering should still work without
+    // impacting the drop's awareness of currently dragging elements
     this.unregisterThisAsCurrentlyDragging();
     console.log(currentlyDragging);
+  }
+
+  public dragEnterHandler(event: React.DragEvent<HTMLLIElement>) {
+    // this is required for the drop event to take effect
+    event.preventDefault();
+  }
+  public dragOverHandler(event: React.DragEvent<HTMLLIElement>) {
+    // this is also required for the drop event to take effect
+    event.preventDefault();
   }
 
   public onDropReceiveHandler(event: React.DragEvent<HTMLLIElement>) {
     event.stopPropagation();
 
+    console.clear();
+    console.log('Experiencing a drop');
+
     // only going to handle one dragged element rn
-    const registeredDraggingElement = currentlyDragging[0];
-    
+    const registeredDraggingElement: NavigationItem = currentlyDragging[0];
+
+    console.assert(registeredDraggingElement.props.parentSetState);
+
+    registeredDraggingElement.removeFromParent();
+
+    // change the data state
+    Project.moveStoryDivisionTo(
+      registeredDraggingElement.props.storyDivision,
+      this.props.storyDivision
+    );
+
+    // change the view state
+    this.setState((state) => ({
+      childDivisions: [
+        ...state.childDivisions,
+        {
+          childDivisions: registeredDraggingElement.props.childDivisions,
+          storyDivision: registeredDraggingElement.props.storyDivision,
+        },
+      ],
+    }));
   }
 
   private registerThisAsCurrentlyDragging() {
@@ -103,7 +140,9 @@ class NavigationItem extends React.Component<
         draggable={true}
         onDragStart={this.dragStartHandler}
         onDragEnd={this.dragEndHandler}
-
+        onDragOver={this.dragOverHandler}
+        onDragEnter={this.dragEnterHandler}
+        onDrop={this.onDropReceiveHandler}
       >
         <span className={'navigation-item-modification-wrapper'}>
           <button
@@ -114,7 +153,7 @@ class NavigationItem extends React.Component<
           </button>
           <button>{this.props.storyDivision.label}</button>
           <button
-            onClick={this.removeThis}
+            onClick={this.removeFromParent}
             className={'navigation-item-modification-button'}
           >
             -

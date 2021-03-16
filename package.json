@@ -2,7 +2,7 @@
   "name": "writing-application-mvc",
   "version": "1.0.0",
   "description": "",
-  "main": "./out/electron/main.js",
+  "main": "./out/src/electron/main.js",
   "scripts": {
     "start": "electron ."
   },
