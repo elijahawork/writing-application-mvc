@@ -30,3 +30,11 @@ body {
 .story-division-label.below {
   border-bottom: 1px solid green;
 }
+.navigation-item-modification-button {
+  /* use opacity for transition as visibility does not work */
+  opacity: 0;
+  transition: 0.125s linear;
+}
+.navigation-item-modification-wrapper:hover .navigation-item-modification-button {
+  opacity: 1;
+}

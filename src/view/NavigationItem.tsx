@@ -67,9 +67,21 @@ class NavigationItem extends React.Component<
 
     return (
       <li>
-        <button onClick={this.createNewChildDivision}>+</button>
-        <button>{this.props.storyDivision.label}</button>
-        <button onClick={this.removeThis}>-</button>
+        <span className={'navigation-item-modification-wrapper'}>
+          <button
+            onClick={this.createNewChildDivision}
+            className={'navigation-item-modification-button'}
+          >
+            +
+          </button>
+          <button>{this.props.storyDivision.label}</button>
+          <button
+            onClick={this.removeThis}
+            className={'navigation-item-modification-button'}
+          >
+            -
+          </button>
+        </span>
         <ul>
           {this.state.childDivisions.map((child, key) => (
             <NavigationItem
