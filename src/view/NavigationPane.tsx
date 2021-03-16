@@ -28,8 +28,6 @@ class NavigationPane extends React.Component<
     };
   }
 
-  public static currentRootRef = createRef<NavigationItem>();
-
   updateTree(tree: StoryDivisionTree) {
     this.setState({ storyDivisionTree: tree }, () => {
       'updated state';
@@ -47,8 +45,6 @@ class NavigationPane extends React.Component<
     return (
       <nav>
         <NavigationItem
-          // this is used to be able to dev change state
-          ref={NavigationPane.currentRootRef}
           childDivisions={this.state.storyDivisionTree.childDivisions}
           storyDivision={this.state.storyDivisionTree.storyDivision}
         />
