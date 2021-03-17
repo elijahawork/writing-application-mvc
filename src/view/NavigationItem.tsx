@@ -94,7 +94,7 @@ class NavigationItem extends React.Component<
   public dragStartHandler(event: React.DragEvent<HTMLLIElement>) {
     event.stopPropagation();
     this.registerThisAsCurrentlyDragging();
-    console.log(currentlyDragging);
+    
   }
 
   public dragEndHandler(event: React.DragEvent<HTMLLIElement>) {
@@ -102,7 +102,7 @@ class NavigationItem extends React.Component<
     // this is fired after the drop event, so un-registering should still work without
     // impacting the drop's awareness of currently dragging elements
     this.unregisterThisAsCurrentlyDragging();
-    console.log(currentlyDragging);
+    
   }
 
   public dragEnterHandler(event: React.DragEvent<HTMLLIElement>) {
@@ -128,7 +128,7 @@ class NavigationItem extends React.Component<
     event.stopPropagation();
 
     console.clear();
-    console.log('Experiencing a drop');
+    
 
     // only going to handle one dragged element rn
     const registeredDraggingElement: NavigationItem = currentlyDragging[0];
@@ -173,7 +173,7 @@ class NavigationItem extends React.Component<
   }
 
   render() {
-    console.log(this.props.storyDivision.label, 'felt the need to rerender');
+    
 
     return (
       <li
@@ -205,7 +205,7 @@ class NavigationItem extends React.Component<
           >
             +
           </button>
-          <button>
+          <button className={'navigation-item-label-button'}>
             <input
               ref={this.labelRef}
               onBlur={this.makeLabelUneditable}

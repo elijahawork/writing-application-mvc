@@ -16,7 +16,7 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
   export function relabelStoryDivision(storyDivision: IStoryDivisionSchema, newLabel: string) {
-    console.log('Relabelling story division', storyDivision.label, 'to', newLabel);
+    
     
     
     console.assert(usingProject());
@@ -148,7 +148,7 @@ namespace Project {
    */
   export function useProject(projectTuple: API.ProjectTupleModifier) {
     const [project, setProject] = projectTuple;
-    console.log(inspect(project, false, null, false));
+    
 
     currentProject = project;
     currentSetProject = setProject;

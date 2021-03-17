@@ -40,7 +40,7 @@ class NavigationPane extends React.Component<
   }
 
   render() {
-    console.log('Rendering Navigation Pane.');
+    
 
     return (
       <nav className = { 'navigation-pane' }>
