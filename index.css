@@ -74,3 +74,10 @@ body {
   width: calc(var(--width) - var(--indention));
   margin-left: var(--indention);
 }
+.navigation-item-label-button input {
+  width: 100%;
+  text-align: center;
+  margin: auto;
+  border: 0;
+  background: transparent;
+}
