@@ -43,7 +43,7 @@ class NavigationPane extends React.Component<
     console.log('Rendering Navigation Pane.');
 
     return (
-      <nav>
+      <nav className = { 'navigation-pane' }>
         <NavigationItem
           childDivisions={this.state.storyDivisionTree.childDivisions}
           storyDivision={this.state.storyDivisionTree.storyDivision}

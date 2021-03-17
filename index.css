@@ -1,6 +1,6 @@
-* {
+/* * {
   border: 1px solid black;
-}
+} */
 html,
 body {
   width: 100%;
@@ -10,26 +10,33 @@ body {
 #root {
   width: inherit;
   height: inherit;
+}
+.app {
+  width: inherit;
+  height: inherit;
   display: grid;
   grid-template-columns: 25% 50% 25%;
 }
-.story-division-label {
-  border: 0;
-  cursor: auto;
-  display: 'grid';
-  grid-template-columns: '20% 60% 20%';
+.navigation-pane {
+  width: 100%;
+  height: 100%;
+  border: 1px solid blue;
 }
-.story-division-label:focus {
-  outline: 0;
-  cursor: text;
+.navigation-pane ul {
+  width: fit-content;
+  height: fit-content;
+  list-style-type: none;
+  padding: none;
+  padding-left: 20px;
 }
 
-.story-division-label.above {
-  border-top: 1px solid green;
+.navigation-item-modification-wrapper {
+  width: inherit;
+  height: inherit;
+  display: grid;
+  grid-template-columns: 20% 60% 20%;
 }
-.story-division-label.below {
-  border-bottom: 1px solid green;
-}
+
 .navigation-item-modification-button {
   /* use opacity for transition as visibility does not work */
   opacity: 0;
@@ -37,4 +44,33 @@ body {
 }
 .navigation-item-modification-wrapper:hover .navigation-item-modification-button {
   opacity: 1;
+}
+
+.navigation-item {
+  --height: fit-content; /* this css right here makes it so that the tree actually shows its children without overlap*/
+  --width: 100%;
+
+  border: 1px solid black;
+  
+  /* uth rendering */
+  width: var(--width);
+  height: var(--height);
+}
+
+.about-to-contain .navigation-item-modification-wrapper:after {
+  --line-height: 1px;
+  --distance-from-bottom: 5px;
+  --line-color: blue;
+  --indention: 5px;
+  
+  /* basics for the :after to display */  
+  content: '';
+  display: block; 
+
+  /* all the under the hood calculations to render the item */
+  height: var(--line-height);
+  margin-top: calc(var(--height) + var(--distance-from-bottom));
+  background: var(--line-color);
+  width: calc(var(--width) - var(--indention));
+  margin-left: var(--indention);
 }

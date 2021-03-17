@@ -33,7 +33,7 @@ class App extends React.Component<AppProps, AppState> {
   }
   render() {
     return (
-      <div>
+      <div className={'app'}>
         {
           <NavigationPane
             initialStoryDivisionTree={this.props.rootStoryDivisionTree}

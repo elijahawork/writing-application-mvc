@@ -18,6 +18,9 @@ type NavigationItemProps = StoryDivisionTree & {
 type NavigationItemState = {
   childDivisions: StoryDivisionTree[];
   disabled: boolean;
+  aboutToReceiveAbove: boolean;
+  aboutToContain: boolean;
+  aboutToReceiveBelow: boolean;
 };
 
 let currentlyDragging: NavigationItem[] = [];
@@ -32,6 +35,9 @@ class NavigationItem extends React.Component<
     this.state = {
       childDivisions: props.childDivisions,
       disabled: true,
+      aboutToContain: false,
+      aboutToReceiveAbove: false,
+      aboutToReceiveBelow: false,
     };
 
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
@@ -41,6 +47,7 @@ class NavigationItem extends React.Component<
     this.dragEndHandler = this.dragEndHandler.bind(this);
     this.onDropReceiveHandler = this.onDropReceiveHandler.bind(this);
     this.updateNamingChange = this.updateNamingChange.bind(this);
+    this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
     // because the dnd api sucks, these need to exist to cancel for the drop to take effect @.@
     this.dragEnterHandler = this.dragEnterHandler.bind(this);
     this.dragOverHandler = this.dragOverHandler.bind(this);
@@ -101,6 +108,16 @@ class NavigationItem extends React.Component<
   public dragEnterHandler(event: React.DragEvent<HTMLLIElement>) {
     // this is required for the drop event to take effect
     event.preventDefault();
+    // this prevents every element above from also performing the acts of a dropping element
+    event.stopPropagation();
+
+    // note: this event is from the POV of the element being entered
+
+    this.setState({ aboutToContain: true });
+  }
+  public dragLeaveHandler(event: React.DragEvent<HTMLLIElement>) {
+    event.stopPropagation();
+    this.setState({ aboutToContain: false });
   }
   public dragOverHandler(event: React.DragEvent<HTMLLIElement>) {
     // this is also required for the drop event to take effect
@@ -160,14 +177,25 @@ class NavigationItem extends React.Component<
 
     return (
       <li
+        className={
+          'navigation-item ' +
+          (this.state.aboutToContain
+            ? 'about-to-contain'
+            : this.state.aboutToReceiveAbove
+            ? 'about-to-receive-above'
+            : this.state.aboutToReceiveBelow
+            ? 'about-to-receive-below'
+            : '')
+        }
         draggable={true}
         onDragStart={this.dragStartHandler}
         onDragEnd={this.dragEndHandler}
         onDragOver={this.dragOverHandler}
         onDragEnter={this.dragEnterHandler}
         onDrop={this.onDropReceiveHandler}
+        onDragLeave={this.dragLeaveHandler}
       >
-        <span
+        <div
           className={'navigation-item-modification-wrapper'}
           onDoubleClick={this.makeLabelEditable}
         >
@@ -192,7 +220,7 @@ class NavigationItem extends React.Component<
           >
             -
           </button>
-        </span>
+        </div>
         <ul>
           {this.state.childDivisions
             .sort(compareStoryDivisionTrees)
