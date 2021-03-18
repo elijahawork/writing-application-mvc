@@ -6,6 +6,7 @@ type StoryDivisionId = number;
 
 // this should keep track of the navigation items
 const navigationItemPropsRegistry: Record<StoryDivisionId, NavigationItem> = {};
+let lastQuery: Nullable<NavigationItem> = null;
 
 type NavigationItemProps = StoryDivisionTree & {
   parentSetState: Nullable<
@@ -115,6 +116,28 @@ class NavigationItem extends React.Component<
   }
   handleDrag(ev: React.DragEvent<HTMLLIElement>) {
     ev.stopPropagation(); // f bubbling in this api
+    lastQuery?.setState({
+      aboutToContain: false,
+      aboutToReceiveAbove: false,
+      aboutToReceiveBelow: false,
+    });
+    const [navItem, pos] = nearestNavItem(ev.clientY, this);
+
+    console.clear();
+    console.log({ pos });
+
+    // this is very buggy
+    navItem.setState({
+      // the y value of the label is always positive
+      // a cursor is below an element
+      // if its y value is greater than the element
+      // because the greater the y value, the further down
+      // on the page the element is
+      aboutToReceiveBelow: pos < 10,
+      aboutToContain: -10 < pos && pos < 10,
+      aboutToReceiveAbove: pos < -10,
+    });
+    lastQuery = navItem;
   }
   private registerThisAsCurrentlyDragging() {
     currentlyDragging.push(this);
@@ -136,20 +159,16 @@ class NavigationItem extends React.Component<
   render() {
     return (
       <li
-        className={
-          'navigation-item ' +
-          (this.state.aboutToContain
-            ? 'about-to-contain'
-            : this.state.aboutToReceiveAbove
-            ? 'about-to-receive-above'
-            : this.state.aboutToReceiveBelow
-            ? 'about-to-receive-below'
-            : '')
-        }
+        className={'navigation-item '}
         draggable={true}
         onDrag={this.handleDrag}
         onDragEnd={this.handleDragEnd}
       >
+        <div
+          className={
+            this.state.aboutToReceiveAbove ? 'receive-vis' : 'receive-invis'
+          }
+        ></div>
         <div
           className={'navigation-item-modification-wrapper'}
           onDoubleClick={this.makeLabelEditable}
@@ -176,6 +195,12 @@ class NavigationItem extends React.Component<
             -
           </button>
         </div>
+
+        <div
+          className={
+            this.state.aboutToReceiveBelow ? 'receive-vis' : 'receive-invis'
+          }
+        ></div>
         <ul>
           {this.state.childDivisions
             .sort(compareStoryDivisionTrees)
