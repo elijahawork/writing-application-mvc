@@ -94,7 +94,6 @@ class NavigationItem extends React.Component<
   public dragStartHandler(event: React.DragEvent<HTMLLIElement>) {
     event.stopPropagation();
     this.registerThisAsCurrentlyDragging();
-    
   }
 
   public dragEndHandler(event: React.DragEvent<HTMLLIElement>) {
@@ -102,7 +101,6 @@ class NavigationItem extends React.Component<
     // this is fired after the drop event, so un-registering should still work without
     // impacting the drop's awareness of currently dragging elements
     this.unregisterThisAsCurrentlyDragging();
-    
   }
 
   public dragEnterHandler(event: React.DragEvent<HTMLLIElement>) {
@@ -117,7 +115,11 @@ class NavigationItem extends React.Component<
   }
   public dragLeaveHandler(event: React.DragEvent<HTMLLIElement>) {
     event.stopPropagation();
-    this.setState({ aboutToContain: false });
+    this.setState({
+      aboutToContain: false,
+      aboutToReceiveBelow: false,
+      aboutToReceiveAbove: false,
+    });
   }
   public dragOverHandler(event: React.DragEvent<HTMLLIElement>) {
     // this is also required for the drop event to take effect
@@ -128,7 +130,6 @@ class NavigationItem extends React.Component<
     event.stopPropagation();
 
     console.clear();
-    
 
     // only going to handle one dragged element rn
     const registeredDraggingElement: NavigationItem = currentlyDragging[0];
@@ -173,8 +174,6 @@ class NavigationItem extends React.Component<
   }
 
   render() {
-    
-
     return (
       <li
         className={
