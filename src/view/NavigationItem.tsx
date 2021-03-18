@@ -43,14 +43,6 @@ class NavigationItem extends React.Component<
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
     this.removeFromParent = this.removeFromParent.bind(this);
     this.setState = this.setState.bind(this);
-    this.dragStartHandler = this.dragStartHandler.bind(this);
-    this.dragEndHandler = this.dragEndHandler.bind(this);
-    this.onDropReceiveHandler = this.onDropReceiveHandler.bind(this);
-    this.updateNamingChange = this.updateNamingChange.bind(this);
-    this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
-    // because the dnd api sucks, these need to exist to cancel for the drop to take effect @.@
-    this.dragEnterHandler = this.dragEnterHandler.bind(this);
-    this.dragOverHandler = this.dragOverHandler.bind(this);
 
     this.makeLabelEditable = this.makeLabelEditable.bind(this);
     this.makeLabelUneditable = this.makeLabelUneditable.bind(this);
