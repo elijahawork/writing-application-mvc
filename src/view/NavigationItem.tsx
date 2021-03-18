@@ -91,71 +91,6 @@ class NavigationItem extends React.Component<
     }));
   }
 
-  public dragStartHandler(event: React.DragEvent<HTMLLIElement>) {
-    event.stopPropagation();
-    this.registerThisAsCurrentlyDragging();
-  }
-
-  public dragEndHandler(event: React.DragEvent<HTMLLIElement>) {
-    event.stopPropagation();
-    // this is fired after the drop event, so un-registering should still work without
-    // impacting the drop's awareness of currently dragging elements
-    this.unregisterThisAsCurrentlyDragging();
-  }
-
-  public dragEnterHandler(event: React.DragEvent<HTMLLIElement>) {
-    // this is required for the drop event to take effect
-    event.preventDefault();
-    // this prevents every element above from also performing the acts of a dropping element
-    event.stopPropagation();
-
-    // note: this event is from the POV of the element being entered
-
-    this.setState({ aboutToContain: true });
-  }
-  public dragLeaveHandler(event: React.DragEvent<HTMLLIElement>) {
-    event.stopPropagation();
-    this.setState({
-      aboutToContain: false,
-      aboutToReceiveBelow: false,
-      aboutToReceiveAbove: false,
-    });
-  }
-  public dragOverHandler(event: React.DragEvent<HTMLLIElement>) {
-    // this is also required for the drop event to take effect
-    event.preventDefault();
-  }
-
-  public onDropReceiveHandler(event: React.DragEvent<HTMLLIElement>) {
-    event.stopPropagation();
-
-    console.clear();
-
-    // only going to handle one dragged element rn
-    const registeredDraggingElement: NavigationItem = currentlyDragging[0];
-
-    console.assert(registeredDraggingElement.props.parentSetState);
-
-    registeredDraggingElement.removeFromParent();
-
-    // change the data state
-    Project.moveStoryDivisionTo(
-      registeredDraggingElement.props.storyDivision,
-      this.props.storyDivision
-    );
-
-    // change the view state
-    this.setState((state) => ({
-      childDivisions: [
-        ...state.childDivisions,
-        {
-          childDivisions: registeredDraggingElement.props.childDivisions,
-          storyDivision: registeredDraggingElement.props.storyDivision,
-        },
-      ],
-    }));
-  }
-
   private registerThisAsCurrentlyDragging() {
     currentlyDragging.push(this);
   }
@@ -187,12 +122,6 @@ class NavigationItem extends React.Component<
             : '')
         }
         draggable={true}
-        onDragStart={this.dragStartHandler}
-        onDragEnd={this.dragEndHandler}
-        onDragOver={this.dragOverHandler}
-        onDragEnter={this.dragEnterHandler}
-        onDrop={this.onDropReceiveHandler}
-        onDragLeave={this.dragLeaveHandler}
       >
         <div
           className={'navigation-item-modification-wrapper'}
