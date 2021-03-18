@@ -2,6 +2,11 @@ import React, { createRef } from 'react';
 import { Nullable } from '../types/CustomUtilTypes';
 import Project, { StoryDivisionTree } from '../util/Project';
 
+type StoryDivisionId = number;
+
+// this should keep track of the navigation items
+const navigationItemPropsRegistry: Record<StoryDivisionId, NavigationItem> = {};
+
 type NavigationItemProps = StoryDivisionTree & {
   parentSetState: Nullable<
     <K extends keyof NavigationItemState>(
@@ -29,7 +34,8 @@ class NavigationItem extends React.Component<
   NavigationItemProps,
   NavigationItemState
 > {
-  private labelRef = createRef<HTMLInputElement>();
+  public readonly labelRef = createRef<HTMLInputElement>();
+
   constructor(props: NavigationItemProps) {
     super(props);
     this.state = {
@@ -46,6 +52,10 @@ class NavigationItem extends React.Component<
 
     this.makeLabelEditable = this.makeLabelEditable.bind(this);
     this.makeLabelUneditable = this.makeLabelUneditable.bind(this);
+    this.handleDragEnd = this.handleDragEnd.bind(this);
+    this.handleDrag = this.handleDrag.bind(this);
+
+    navigationItemPropsRegistry[this.props.storyDivision.id] = this;
   }
   updateNamingChange() {
     console.assert(this.labelRef.current);
@@ -82,7 +92,30 @@ class NavigationItem extends React.Component<
       ],
     }));
   }
+  handleDragEnd(ev: React.DragEvent<HTMLLIElement>) {
+    ev.stopPropagation(); // f bubbling in this api
+    const [navItem, pos] = nearestNavItem(ev.clientY, this);
 
+    this.removeFromParent();
+
+    Project.moveStoryDivisionTo(
+      this.props.storyDivision,
+      navItem.props.storyDivision
+    );
+
+    navItem.setState((state) => ({
+      childDivisions: [...state.childDivisions, this.toStoryDivisionTree()],
+    }));
+  }
+  private toStoryDivisionTree() {
+    return {
+      childDivisions: this.props.childDivisions,
+      storyDivision: this.props.storyDivision,
+    };
+  }
+  handleDrag(ev: React.DragEvent<HTMLLIElement>) {
+    ev.stopPropagation(); // f bubbling in this api
+  }
   private registerThisAsCurrentlyDragging() {
     currentlyDragging.push(this);
   }
@@ -114,6 +147,8 @@ class NavigationItem extends React.Component<
             : '')
         }
         draggable={true}
+        onDrag={this.handleDrag}
+        onDragEnd={this.handleDragEnd}
       >
         <div
           className={'navigation-item-modification-wrapper'}
@@ -159,6 +194,49 @@ class NavigationItem extends React.Component<
 }
 
 export default NavigationItem;
+/**
+ *
+ * @param y ist he cursor position at y
+ * @param ignore is the navigation item to ignore when iterating so that one does not simply get their own nav item back, this may be useless but
+ * @returns the nearest nav item as its object instance
+ */
+type NearestNavigationItemDistance = number;
+function nearestNavItem(
+  y: number,
+  ignore?: NavigationItem
+): [NavigationItem, NearestNavigationItemDistance] {
+  let minY = Number.NEGATIVE_INFINITY;
+  let minE: Nullable<NavigationItem> = null;
+  for (const navItem of Object.values(navigationItemPropsRegistry)) {
+    if (navItem === ignore) continue;
+    console.assert(navItem.labelRef.current);
+
+    const yr = navItem.labelRef.current!.getBoundingClientRect().y;
+
+    // we want to compare scalar quantities
+    // so that we get the closest one
+    // but it's not affected by whether or not
+    // the cursor is above or below
+    // it is, however, good to keep track of the
+    // scalar as it might come in handy later
+    // if this function is expanded upon
+
+    // assuming y and yr are both positive
+    const prevDistScalar = Math.abs(minY);
+    const queryDistVector = y - yr;
+    const queryDistScalar = Math.abs(queryDistVector);
+
+    if (queryDistScalar < prevDistScalar) {
+      minY = y - yr;
+      minE = navItem;
+    }
+  }
+
+  // there should always be an element nearby, but if there is not, then error out because then an item may not be placed
+  // this is not the best way to handle this but right now it's the easiest
+  if (!minE) throw new Error(`There are no near elements`);
+  return [minE, minY];
+}
 
 function compareStoryDivisionTrees(
   storyDivisionA: StoryDivisionTree,
