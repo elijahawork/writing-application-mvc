@@ -56,23 +56,17 @@ body {
   width: var(--width);
   height: var(--height);
 }
+.receive-vis {
+  width: 100%;
+  height: 1px;
+  background-color: blue;
 
-.about-to-contain .navigation-item-modification-wrapper:after {
-  --line-height: 1px;
-  --distance-from-bottom: 5px;
-  --line-color: blue;
-  --indention: 5px;
-  
-  /* basics for the :after to display */  
-  content: '';
-  display: block; 
+}
+.receive-invis {
+  width: 100%;
+  height: 1px;
+  background-color: transparent;
 
-  /* all the under the hood calculations to render the item */
-  height: var(--line-height);
-  margin-top: calc(var(--height) + var(--distance-from-bottom));
-  background: var(--line-color);
-  width: calc(var(--width) - var(--indention));
-  margin-left: var(--indention);
 }
 .navigation-item-label-button input {
   width: 100%;
