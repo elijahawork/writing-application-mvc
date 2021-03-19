@@ -95,7 +95,7 @@ class NavigationItem extends React.Component<
   }
   handleDragEnd(ev: React.DragEvent<HTMLLIElement>) {
     ev.stopPropagation(); // f bubbling in this api
-    const [navItem, pos] = nearestNavItem(ev.clientY, this);
+    const [navItem, dy, dx] = nearestNavItem(ev.clientY, ev.clientX, this);
 
     this.removeFromParent();
 
@@ -121,22 +121,23 @@ class NavigationItem extends React.Component<
       aboutToReceiveAbove: false,
       aboutToReceiveBelow: false,
     });
-    const [navItem, pos] = nearestNavItem(ev.clientY, this);
+    const [navItem, dy, dx] = nearestNavItem(ev.clientY, ev.clientX, this);
 
-    console.clear();
-    console.log({ pos });
+    console.log({ dx, dy });
 
-    // this is very buggy
+    const loc = determinePlacementLocationBasedOfOfCursorDisplacementFromCenter(
+      dx,
+      dy
+    );
+
+    console.log({ loc });
+
     navItem.setState({
-      // the y value of the label is always positive
-      // a cursor is below an element
-      // if its y value is greater than the element
-      // because the greater the y value, the further down
-      // on the page the element is
-      aboutToReceiveBelow: pos < 10,
-      aboutToContain: -10 < pos && pos < 10,
-      aboutToReceiveAbove: pos < -10,
+      aboutToReceiveBelow: loc === 'below',
+      aboutToReceiveAbove: loc === 'above',
+      aboutToContain: loc === 'in',
     });
+
     lastQuery = navItem;
   }
   private registerThisAsCurrentlyDragging() {
@@ -181,6 +182,13 @@ class NavigationItem extends React.Component<
           </button>
           <button className={'navigation-item-label-button'}>
             <input
+              className={
+                this.state.aboutToContain ||
+                this.state.aboutToReceiveAbove ||
+                this.state.aboutToReceiveBelow
+                  ? 'selected'
+                  : ''
+              }
               ref={this.labelRef}
               onBlur={this.makeLabelUneditable}
               onChange={this.updateNamingChange}
@@ -198,7 +206,11 @@ class NavigationItem extends React.Component<
 
         <div
           className={
-            this.state.aboutToReceiveBelow ? 'receive-vis' : 'receive-invis'
+            this.state.aboutToReceiveBelow
+              ? 'receive-vis'
+              : this.state.aboutToContain
+              ? 'contain-vis'
+              : 'receive-invis'
           }
         ></div>
         <ul>
@@ -223,20 +235,30 @@ export default NavigationItem;
  *
  * @param y ist he cursor position at y
  * @param ignore is the navigation item to ignore when iterating so that one does not simply get their own nav item back, this may be useless but
- * @returns the nearest nav item as its object instance
+ * @returns the nearest a tuple containing in the form ox [nearest navigation item, distY, distX]
  */
-type NearestNavigationItemDistance = number;
+type NearestNavigationItemDistanceY = number;
+type NearestNavigationItemDistanceX = number;
 function nearestNavItem(
   y: number,
+  x: number,
   ignore?: NavigationItem
-): [NavigationItem, NearestNavigationItemDistance] {
-  let minY = Number.NEGATIVE_INFINITY;
-  let minE: Nullable<NavigationItem> = null;
+): [
+  NavigationItem,
+  NearestNavigationItemDistanceY,
+  NearestNavigationItemDistanceX
+] {
+  let minimumYDisplacement = Number.NEGATIVE_INFINITY;
+  let nearestNavItem: Nullable<NavigationItem> = null;
+  let xDisplacement = 0;
   for (const navItem of Object.values(navigationItemPropsRegistry)) {
     if (navItem === ignore) continue;
     console.assert(navItem.labelRef.current);
 
-    const yr = navItem.labelRef.current!.getBoundingClientRect().y;
+    // find the center of the label
+    const [labelCenterX, labelCenterY] = getCenterOfElement(
+      navItem.labelRef.current!
+    );
 
     // we want to compare scalar quantities
     // so that we get the closest one
@@ -246,21 +268,28 @@ function nearestNavItem(
     // scalar as it might come in handy later
     // if this function is expanded upon
 
+    // scalar quantity is unsigned
+    // vector quantity is signed
     // assuming y and yr are both positive
-    const prevDistScalar = Math.abs(minY);
-    const queryDistVector = y - yr;
+    const prevDistScalar = Math.abs(minimumYDisplacement);
+    // the order is important because if we want the negative value to indicate
+    // that the cursor is "below" the label, then it must be acknowledged that
+    // as the cursor goes further down the screen it gets bigger
+    const queryDistVector = labelCenterY - y;
     const queryDistScalar = Math.abs(queryDistVector);
+    const queryXDistScalar = x - labelCenterX;
 
     if (queryDistScalar < prevDistScalar) {
-      minY = y - yr;
-      minE = navItem;
+      minimumYDisplacement = queryDistVector;
+      nearestNavItem = navItem;
+      xDisplacement = queryXDistScalar;
     }
   }
 
   // there should always be an element nearby, but if there is not, then error out because then an item may not be placed
   // this is not the best way to handle this but right now it's the easiest
-  if (!minE) throw new Error(`There are no near elements`);
-  return [minE, minY];
+  if (!nearestNavItem) throw new Error(`There are no near elements`);
+  return [nearestNavItem, minimumYDisplacement, xDisplacement];
 }
 
 function compareStoryDivisionTrees(
@@ -271,4 +300,33 @@ function compareStoryDivisionTrees(
     storyDivisionA.storyDivision.position -
     storyDivisionB.storyDivision.position
   );
+}
+
+/**
+ *
+ * @param e is the HTML element
+ * @returns a tuple in the form of [x, y]
+ */
+function getCenterOfElement<T extends keyof HTMLElementTagNameMap>(
+  e: HTMLElementTagNameMap[T]
+): [number, number] {
+  const rect = e.getBoundingClientRect();
+  return [rect.x + rect.width / 2, rect.y + rect.height / 2];
+}
+
+type PlacementLocation = 'above' | 'below' | 'in';
+/**
+ *
+ * @param dx is the displacement on the x axis
+ * @param dy is the displacement on the y axis
+ */
+function determinePlacementLocationBasedOfOfCursorDisplacementFromCenter(
+  dx: number,
+  dy: number
+): PlacementLocation {
+  if (dy < 0) {
+    if (dx > 0) return 'in';
+    return 'below';
+  }
+  return 'above';
 }
