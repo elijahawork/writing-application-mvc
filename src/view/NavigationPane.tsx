@@ -27,23 +27,9 @@ class NavigationPane extends React.Component<
       storyDivisionTree: props.initialStoryDivisionTree,
     };
   }
-
-  updateTree(tree: StoryDivisionTree) {
-    this.setState({ storyDivisionTree: tree }, () => {
-      'updated state';
-      console.log(
-        'Updating',
-        inspect(this.state, false, null, false),
-        'with new tree'
-      );
-    });
-  }
-
   render() {
-    
-
     return (
-      <nav className = { 'navigation-pane' }>
+      <nav className={'navigation-pane'}>
         <NavigationItem
           childDivisions={this.state.storyDivisionTree.childDivisions}
           storyDivision={this.state.storyDivisionTree.storyDivision}
