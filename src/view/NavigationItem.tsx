@@ -1,5 +1,6 @@
 import React, { createRef } from 'react';
 import { Nullable } from '../types/CustomUtilTypes';
+import { HTMLMathUtil } from '../util/HTMLMathUtil';
 import Project, { StoryDivisionTree } from '../util/Project';
 
 type StoryDivisionId = number;
@@ -97,7 +98,11 @@ class NavigationItem extends React.Component<
   }
   handleDragEnd(ev: React.DragEvent<HTMLLIElement>) {
     ev.stopPropagation(); // f bubbling in this api
-    const [navItem, dy, dx] = nearestNavItem(ev.clientY, ev.clientX, this);
+    const [navItem, dy, dx] = getNearestNavAndDisplacement(
+      ev.clientY,
+      ev.clientX,
+      this
+    );
 
     this.removeFromParent();
 
@@ -125,12 +130,13 @@ class NavigationItem extends React.Component<
       aboutToReceiveAbove: false,
       aboutToReceiveBelow: false,
     });
-    const [navItem, dy, dx] = nearestNavItem(ev.clientY, ev.clientX, this);
-
-    const loc = determinePlacementLocationBasedOfOfCursorDisplacementFromCenter(
-      dx,
-      dy
+    const [navItem, dy, dx] = getNearestNavAndDisplacement(
+      ev.clientY,
+      ev.clientX,
+      this
     );
+
+    const loc = placementLocationFromDisplacement(dx, dy);
 
     navItem.setState({
       aboutToReceiveBelow: loc === 'below',
@@ -162,7 +168,7 @@ class NavigationItem extends React.Component<
     console.clear();
     console.log("Oh my lordy, I can't done believe this is happening");
 
-    // this is so that the drag event doesn't stop and the 
+    // this is so that the drag event doesn't stop and the
     // drag visual doesn't disappear
     setTimeout(() => this.setState({ visible: false }), 0);
   }
@@ -249,14 +255,14 @@ export default NavigationItem;
  */
 type NearestNavigationItemDistanceY = number;
 type NearestNavigationItemDistanceX = number;
-function nearestNavItem(
+function getNearestNavAndDisplacement(
   y: number,
   x: number,
   ignore?: NavigationItem
 ): [
   NavigationItem,
-  NearestNavigationItemDistanceY,
-  NearestNavigationItemDistanceX
+  NearestNavigationItemDistanceX,
+  NearestNavigationItemDistanceY
 ] {
   let minimumYDisplacement = Number.NEGATIVE_INFINITY;
   let nearestNavItem: Nullable<NavigationItem> = null;
@@ -266,7 +272,7 @@ function nearestNavItem(
     console.assert(navItem.labelRef.current);
 
     // find the center of the label
-    const [labelCenterX, labelCenterY] = getCenterOfElement(
+    const [labelCenterX, labelCenterY] = HTMLMathUtil.getCenterOfElement(
       navItem.labelRef.current!
     );
 
@@ -299,7 +305,7 @@ function nearestNavItem(
   // there should always be an element nearby, but if there is not, then error out because then an item may not be placed
   // this is not the best way to handle this but right now it's the easiest
   if (!nearestNavItem) throw new Error(`There are no near elements`);
-  return [nearestNavItem, minimumYDisplacement, xDisplacement];
+  return [nearestNavItem, xDisplacement, minimumYDisplacement];
 }
 
 function compareStoryDivisionTrees(
@@ -312,25 +318,13 @@ function compareStoryDivisionTrees(
   );
 }
 
-/**
- *
- * @param e is the HTML element
- * @returns a tuple in the form of [x, y]
- */
-function getCenterOfElement<T extends keyof HTMLElementTagNameMap>(
-  e: HTMLElementTagNameMap[T]
-): [number, number] {
-  const rect = e.getBoundingClientRect();
-  return [rect.x + rect.width / 2, rect.y + rect.height / 2];
-}
-
 type PlacementLocation = 'above' | 'below' | 'in';
 /**
  *
  * @param dx is the displacement on the x axis
  * @param dy is the displacement on the y axis
  */
-function determinePlacementLocationBasedOfOfCursorDisplacementFromCenter(
+function placementLocationFromDisplacement(
   dx: number,
   dy: number
 ): PlacementLocation {
