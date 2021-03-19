@@ -27,6 +27,7 @@ type NavigationItemState = {
   aboutToReceiveAbove: boolean;
   aboutToContain: boolean;
   aboutToReceiveBelow: boolean;
+  visible: boolean;
 };
 
 let currentlyDragging: NavigationItem[] = [];
@@ -45,6 +46,7 @@ class NavigationItem extends React.Component<
       aboutToContain: false,
       aboutToReceiveAbove: false,
       aboutToReceiveBelow: false,
+      visible: true,
     };
 
     this.createNewChildDivision = this.createNewChildDivision.bind(this);
@@ -55,7 +57,7 @@ class NavigationItem extends React.Component<
     this.makeLabelUneditable = this.makeLabelUneditable.bind(this);
     this.handleDragEnd = this.handleDragEnd.bind(this);
     this.handleDrag = this.handleDrag.bind(this);
-
+    this.handleDragStart = this.handleDragStart.bind(this);
     navigationItemPropsRegistry[this.props.storyDivision.id] = this;
   }
   updateNamingChange() {
@@ -107,6 +109,8 @@ class NavigationItem extends React.Component<
     navItem.setState((state) => ({
       childDivisions: [...state.childDivisions, this.toStoryDivisionTree()],
     }));
+
+    this.setState({ visible: true });
   }
   private toStoryDivisionTree() {
     return {
@@ -123,14 +127,10 @@ class NavigationItem extends React.Component<
     });
     const [navItem, dy, dx] = nearestNavItem(ev.clientY, ev.clientX, this);
 
-    console.log({ dx, dy });
-
     const loc = determinePlacementLocationBasedOfOfCursorDisplacementFromCenter(
       dx,
       dy
     );
-
-    console.log({ loc });
 
     navItem.setState({
       aboutToReceiveBelow: loc === 'below',
@@ -156,12 +156,22 @@ class NavigationItem extends React.Component<
   makeLabelUneditable() {
     this.setState({ disabled: true });
   }
+  handleDragStart(ev: React.DragEvent<HTMLLIElement>) {
+    ev.stopPropagation();
 
+    console.clear();
+    console.log("Oh my lordy, I can't done believe this is happening");
+
+    // this is so that the drag event doesn't stop and the 
+    // drag visual doesn't disappear
+    setTimeout(() => this.setState({ visible: false }), 0);
+  }
   render() {
     return (
       <li
-        className={'navigation-item '}
+        className={`navigation-item ${this.state.visible ? '' : 'nav-vis'}`}
         draggable={true}
+        onDragStart={this.handleDragStart}
         onDrag={this.handleDrag}
         onDragEnd={this.handleDragEnd}
       >
