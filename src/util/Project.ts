@@ -15,14 +15,14 @@ let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
 // this is a map of all the ids to their corresponding schema
 let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
-  export function relabelStoryDivision(storyDivision: IStoryDivisionSchema, newLabel: string) {
-    
-    
-    
+  export function relabelStoryDivision(
+    storyDivision: IStoryDivisionSchema,
+    newLabel: string
+  ) {
     console.assert(usingProject());
     storyDivision.label = newLabel;
 
-    currentSetProject!({storyDivisions: currentProject!.storyDivisions});
+    currentSetProject!({ storyDivisions: currentProject!.storyDivisions });
   }
   export function generateUntitledStoryDivision(
     // set the default parent to the root
@@ -148,7 +148,6 @@ namespace Project {
    */
   export function useProject(projectTuple: API.ProjectTupleModifier) {
     const [project, setProject] = projectTuple;
-    
 
     currentProject = project;
     currentSetProject = setProject;
