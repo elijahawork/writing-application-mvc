@@ -51,6 +51,7 @@ class NavigationItem extends React.Component<
     this.removeFromParent = this.removeFromParent.bind(this);
     this.setState = this.setState.bind(this);
 
+    this.updateNamingChange = this.updateNamingChange.bind(this);
     this.makeLabelEditable = this.makeLabelEditable.bind(this);
     this.makeLabelUneditable = this.makeLabelUneditable.bind(this);
     this.handleDragEnd = this.handleDragEnd.bind(this);
@@ -103,8 +104,8 @@ class NavigationItem extends React.Component<
       ev.clientY,
       ev.clientX,
       {
-        before() {},
-        in() {
+        before(navItem) {},
+        in(navItem) {
           this.removeFromParent();
 
           Project.StoryDivision.API.move(
@@ -119,7 +120,7 @@ class NavigationItem extends React.Component<
             ],
           }));
         },
-        after() {},
+        after(navItem) {},
       },
       this
     );
@@ -143,14 +144,14 @@ class NavigationItem extends React.Component<
       ev.clientY,
       ev.clientX,
       {
-        before() {
+        before(navItem) {
           navItem.setState({ aboutToReceiveBelow: true });
         },
-        in() {
+        in(navItem) {
           navItem.setState({ aboutToReceiveBelow: true });
           lastQuery = navItem;
         },
-        after() {
+        after(navItem) {
           navItem.setState({ aboutToReceiveBelow: true });
         },
       },

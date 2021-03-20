@@ -99,9 +99,9 @@ export namespace DNDUtilFunctions {
     return [nearestNavItem, xDisplacement, minimumYDisplacement];
   }
   type NavigationDoCallbacks = {
-    before(this: NavigationItem, nearestNavigationItem?: NavigationItem): void;
-    after(this: NavigationItem, nearestNavigationItem?: NavigationItem): void;
-    in(this: NavigationItem, nearestNavigationItem?: NavigationItem): void;
+    before(this: NavigationItem, nearestNavigationItem: NavigationItem): void;
+    after(this: NavigationItem, nearestNavigationItem: NavigationItem): void;
+    in(this: NavigationItem, nearestNavigationItem: NavigationItem): void;
   };
   /**
    * @param x is the cursor x position
