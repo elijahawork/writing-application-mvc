@@ -1,4 +1,3 @@
-import { inspect } from 'util';
 import API from '../api/API';
 import IProjectSchema from '../schema/IProjectSchema';
 import IStoryDivisionSchema from '../schema/IStoryDivisionSchema';
@@ -9,219 +8,206 @@ export type StoryDivisionTree = {
   childDivisions: StoryDivisionTree[];
 };
 
-let currentProject: Nullable<IProjectSchema>;
-let currentSetProject: Nullable<API.ProjectTupleModifier[1]>;
-
 // this is a map of all the ids to their corresponding schema
-let storyDivisionRegistry: Record<number, IStoryDivisionSchema> = {};
 namespace Project {
-  export function relabelStoryDivision(
-    storyDivision: IStoryDivisionSchema,
-    newLabel: string
-  ) {
-    console.assert(usingProject());
-    storyDivision.label = newLabel;
+  let project: Nullable<IProjectSchema> = null;
+  let setProject: Nullable<API.ProjectTupleModifier[1]> = null;
 
-    currentSetProject!({ storyDivisions: currentProject!.storyDivisions });
-  }
-  export function generateUntitledStoryDivision(
-    // set the default parent to the root
-    parentId = getRootStoryDivision().id
-  ): IStoryDivisionSchema {
-    const id = generateUniqueStoryDivisionID();
+  export namespace StoryDivision {
+    export type StoryDivisionID = number;
 
-    const newStoryDivision = {
-      id,
-      content: '',
-      // it is of an
-      label: 'Untitled',
-      parentId: parentId,
-      // this will put this element in the last position in the root
-      // story division
-      position: getImmediateChildren(getRootStoryDivision()).length,
-    };
+    export namespace API {
+      export function relabel(
+        storyDivision: IStoryDivisionSchema,
+        newLabel: string
+      ): void {
+        console.assert(usingProject());
 
-    return newStoryDivision;
-  }
-  // untested
-  export function removeStoryDivision(
-    storyDivision: IStoryDivisionSchema
-  ): void;
-  export function removeStoryDivision(id: number): void;
-  export function removeStoryDivision(
-    predicate: number | IStoryDivisionSchema
-  ) {
-    console.assert(usingProject());
+        storyDivision.label = newLabel;
 
-    if (typeof predicate === 'number') {
-      currentSetProject!({
-        storyDivisions: currentProject!.storyDivisions.filter(
-          (e) => e.id !== predicate
-        ),
-      });
-      delete storyDivisionRegistry[predicate];
-    } else {
-      currentSetProject!({
-        storyDivisions: currentProject!.storyDivisions.filter(
-          (e) => e !== predicate
-        ),
-      });
-      delete storyDivisionRegistry[predicate.id];
+        setProject!({
+          storyDivisions: project!.storyDivisions,
+        });
+      }
+
+      export function remove(storyDivision: IStoryDivisionSchema): void {
+        setProject!({
+          storyDivisions: project!.storyDivisions.filter(
+            (comparisonDivision) => comparisonDivision !== storyDivision
+          ),
+        });
+
+        Registry.unregister(storyDivision);
+      }
+      export function add(storyDivision: IStoryDivisionSchema): void {
+        console.assert(usingProject());
+
+        setProject!({
+          storyDivisions: [...project!.storyDivisions, storyDivision],
+        });
+
+        Registry.register(storyDivision);
+      }
+
+      export function move(
+        storyDivisionChild: IStoryDivisionSchema,
+        storyDivisionParent: IStoryDivisionSchema
+      ): void {
+        console.assert(usingProject());
+
+        storyDivisionChild.parentId = storyDivisionParent.id;
+        setProject!({
+          storyDivisions: project!.storyDivisions,
+        });
+      }
     }
-  }
-  export function addStoryDivision(
-    storyDivision: IStoryDivisionSchema
-  ): Readonly<IProjectSchema> {
-    console.assert(usingProject());
-    currentSetProject!({
-      storyDivisions: [...currentProject!.storyDivisions, storyDivision],
-    });
+    export namespace Registry {
+      let registry: Record<StoryDivisionID, IStoryDivisionSchema> = {};
 
-    registerStoryDivision(storyDivision);
+      export function getUniqueID() {
+        let id: Nullable<number> = null;
 
-    return currentProject!;
-  }
-  export function generateTreeOfStoryDivisions(
-    storyDivision: IStoryDivisionSchema
-  ): Readonly<StoryDivisionTree> {
-    const children = getImmediateChildren(storyDivision);
+        const idCount = Object.values(
+          Project.StoryDivision.Registry.getRegistry()
+        ).length;
+        // there is a very very very very ... very small chance that this could cause an infinite loop
+        // this should be considered a possible bug and fixed in later versions
+        while (
+          Project.StoryDivision.Registry.isRegistered(
+            (id = Math.floor(Math.random() * 2 * idCount))
+          )
+        );
 
-    // this is a base case
-    // for when there are no children
-    if (children.length === 0) {
-      return {
-        storyDivision,
-        childDivisions: [],
-      };
-      // when there are children
-      // we will need to approach this recursively
-    } else {
-      // this is a recursive tree structure
-      const mappedChildren = children.map((child) => {
-        return generateTreeOfStoryDivisions(child);
-      });
+        return id!;
+      }
 
-      return {
-        storyDivision,
-        childDivisions: mappedChildren,
-      };
+      export function getRegistry(): Record<
+        StoryDivisionID,
+        Readonly<IStoryDivisionSchema>
+      > {
+        return registry;
+      }
+
+      export function clear() {
+        registry = {};
+      }
+      export function unregister(storyDivision: IStoryDivisionSchema) {
+        delete registry[storyDivision.id];
+      }
+      export function registerProjectDivisions() {
+        console.assert(usingProject());
+
+        for (const division of project!.storyDivisions) {
+          register(division);
+        }
+      }
+
+      export function register(storyDivision: IStoryDivisionSchema): void {
+        console.assert(!isRegistered(storyDivision.id));
+
+        registry[storyDivision.id] = storyDivision;
+      }
+      export function isRegistered(storyDivisionID: StoryDivisionID): boolean {
+        return !!registry[storyDivisionID];
+      }
+
+      export function getById(id: number): Readonly<IStoryDivisionSchema> {
+        console.assert(isRegistered(id));
+
+        return registry[id];
+      }
     }
-  }
-  export function getStoryDivisionById(
-    id: number
-  ): Readonly<IStoryDivisionSchema> {
-    console.assert(storyDivisionRegistry[id]);
-    return storyDivisionRegistry[id];
-  }
+    export namespace Util {
+      /**
+       *
+       * @param storyDivision is the division to run through
+       * @returns all the immediate children (not grandchildren) of the provided story division
+       */
+      export function deriveImmediateChildrenArray(
+        storyDivision: IStoryDivisionSchema
+      ): ReadonlyArray<Readonly<IStoryDivisionSchema>> {
+        console.assert(usingProject());
+        console.assert(
+          Project.StoryDivision.Registry.isRegistered(storyDivision.id),
+          `Story division provided is not in project "${project?.label}"`
+        );
 
-  export function moveStoryDivisionTo(
-    storyDivisionChild: IStoryDivisionSchema,
-    storyDivisionParent: IStoryDivisionSchema
-  ): Readonly<IProjectSchema> {
-    console.assert(usingProject());
+        const children: IStoryDivisionSchema[] = [];
 
-    storyDivisionChild.parentId = storyDivisionParent.id;
+        // iterate through every registered story division and add any
+        // immediate children
+        Object.values(Project.StoryDivision.Registry.getRegistry()).forEach(
+          (schema) => {
+            if (schema.parentId === storyDivision.id) children.push(schema);
+          }
+        );
 
-    currentSetProject!({
-      storyDivisions: currentProject!.storyDivisions,
-    });
+        return children;
+      }
+      export function deriveTreeOfStoryDivisions(
+        storyDivision: IStoryDivisionSchema
+      ): Readonly<StoryDivisionTree> {
+        const children = deriveImmediateChildrenArray(storyDivision);
 
-    return currentProject!;
+        // this is a base case
+        // for when there are no children
+        if (children.length === 0) {
+          return {
+            storyDivision,
+            childDivisions: [],
+          };
+          // when there are children
+          // we will need to approach this recursively
+        } else {
+          // this is a recursive tree structure
+          const mappedChildren = children.map((child) => {
+            return deriveTreeOfStoryDivisions(child);
+          });
+
+          return {
+            storyDivision,
+            childDivisions: mappedChildren,
+          };
+        }
+      }
+      /**
+       * @returns the root story division ID
+       * This function *should* return whichever story division contains every child but is not contained itself
+       * but that would take a moment to program and i'm lazy so rn i'm just going to make it so a root
+       * has to have the id of -1.
+       * This should be patched in a later update
+       */
+      export function getRootID() {
+        const rootID = -1;
+
+        console.assert(
+          Project.StoryDivision.Registry.isRegistered(rootID),
+          'There is no root for project'
+        );
+
+        return rootID;
+      }
+      export function compare(
+        storyDivision1: IStoryDivisionSchema,
+        storyDivision2: IStoryDivisionSchema
+      ) {
+        return storyDivision1.position - storyDivision2.position;
+      }
+    }
   }
 
   /**
-   *
-   * @returns the root story division registry
-   * This function *should* return whichever story division contains every child but is not contained itself
-   * but that would take a moment to program and i'm lazy so rn i'm just going to make it so a root
-   * has to have the id of -1.
-   * This should be patched in a later update
-   */
-  export function getRootStoryDivision(): Readonly<IStoryDivisionSchema> {
-    console.assert(storyDivisionRegistry[-1], 'There is no root for project');
-    return storyDivisionRegistry[-1];
-  }
-  /**
-   *
    * @param projectTuple is the project that the functions should all be using
    * @description Sets the current project for all the functions to use
    */
   export function useProject(projectTuple: API.ProjectTupleModifier) {
-    const [project, setProject] = projectTuple;
+    [project, setProject] = projectTuple;
 
-    currentProject = project;
-    currentSetProject = setProject;
-    registerAllStoryDivisionsInProject();
-  }
-  /**
-   *
-   * @param storyDivision is the division to run through
-   * @returns all the immediate children (not grandchildren) of the provided story division
-   */
-  export function getImmediateChildren(
-    storyDivision: IStoryDivisionSchema
-  ): ReadonlyArray<Readonly<IStoryDivisionSchema>> {
-    console.assert(usingProject());
-    console.assert(
-      storyDivisionExistsInProject(storyDivision),
-      `Story division provided is not in project "${currentProject?.label}"`
-    );
-
-    const children: IStoryDivisionSchema[] = [];
-
-    // iterate through every registered story division and add any
-    // immediate children
-    Object.values(storyDivisionRegistry).forEach((schema) => {
-      if (schema.parentId === storyDivision.id) children.push(schema);
-    });
-
-    return children;
-  }
-
-  function storyDivisionExistsInProject(
-    storyDivision: IStoryDivisionSchema
-  ): boolean {
-    return storyDivisionRegistry[storyDivision.id] === storyDivision;
+    Project.StoryDivision.Registry.registerProjectDivisions();
   }
 
   function usingProject(): boolean {
-    return currentProject !== null;
-  }
-
-  function registerAllStoryDivisionsInProject(): void {
-    console.assert(usingProject());
-
-    currentProject!.storyDivisions.forEach((storyDivision) =>
-      registerStoryDivision(storyDivision)
-    );
-  }
-  function registerStoryDivision(storyDivision: IStoryDivisionSchema): void {
-    console.assert(!storyDivisionAlreadyRegistered(storyDivision));
-    console.trace();
-
-    storyDivisionRegistry[storyDivision.id] = storyDivision;
-  }
-
-  function storyDivisionAlreadyRegistered(storyDivision: IStoryDivisionSchema) {
-    return storyDivisionIDAlreadyRegistered(storyDivision.id);
-  }
-
-  function storyDivisionIDAlreadyRegistered(storyDivisionId: number) {
-    return !!storyDivisionRegistry[storyDivisionId];
-  }
-
-  function generateUniqueStoryDivisionID() {
-    let id: Nullable<number> = null;
-    const idCount = Object.values(storyDivisionRegistry).length;
-    // there is a very very very very ... very small chance that this could cause an infinite loop
-    // this should be considered a possible bug and fixed in later versions
-    while (
-      storyDivisionIDAlreadyRegistered(
-        (id = Math.floor(Math.random() * 2 * idCount))
-      )
-    );
-
-    return id!;
+    return project !== null;
   }
 }
 

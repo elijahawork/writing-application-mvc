@@ -33,7 +33,9 @@ export const __PROJ_NAME = join(__dirname, '..', '..', 'protected');
       await promises.mkdir(__PROJ_NAME);
     }
 
-    const [project, setProject] = await API.openProjectFS(join(__PROJ_NAME, 'Project.aesop'));
+    const [project, setProject] = await API.openProjectFS(
+      join(__PROJ_NAME, 'Project.aesop')
+    );
 
     // const [project, setProject] = await generatePresetProject();
 
@@ -45,8 +47,10 @@ export const __PROJ_NAME = join(__dirname, '..', '..', 'protected');
     //   join(__PROJ_NAME, 'Project.aesop')
     // );
 
-    const tree = Project.generateTreeOfStoryDivisions(
-      Project.getRootStoryDivision()
+    const tree = Project.StoryDivision.Util.deriveTreeOfStoryDivisions(
+      Project.StoryDivision.Registry.getById(
+        Project.StoryDivision.Util.getRootID()
+      )
     );
 
     loadProjectIntoView(project, tree);
